@@ -55,7 +55,7 @@ export function ControlPanel({
       <div className="dialkit-panel h-full min-h-0" data-mode="inline">
         <div className="dialkit-panel-inner flex h-full min-h-0 flex-col overflow-hidden">
           <Folder
-            title="Vellum"
+            title="Controls"
             isRoot
             inline
             defaultOpen

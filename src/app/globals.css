@@ -178,6 +178,12 @@
   flex-direction: column;
 }
 
+.dialkit-root[data-mode="inline"] .dialkit-folder-root > .dialkit-panel-header {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 2px;
+}
+
 .dial-tab {
   border-radius: 10px 0 0 10px;
   background: rgb(22 22 26 / 0.78);
