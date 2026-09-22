@@ -1,6 +1,7 @@
 "use client";
 
-import { ButtonGroup, ColorControl, Folder, SelectControl, Slider, Toggle } from "dialkit";
+import { ColorControl, Folder, SelectControl, Slider, Toggle } from "dialkit";
+import { ClipboardCopy, Download, Shuffle } from "lucide-react";
 import { cssColorToHex } from "@/lib/color";
 import { panelConfig } from "@/lib/panel-config";
 import { CANVAS_PRESETS, STYLE_PRESETS } from "@/lib/presets";
@@ -14,7 +15,6 @@ export function ControlPanel({
   onApplyPreset,
   onExportPng,
   onCopyCss,
-  status,
   onClose,
 }: {
   state: GeneratorState;
@@ -23,7 +23,6 @@ export function ControlPanel({
   onApplyPreset: (preset: StylePreset) => void;
   onExportPng: () => void;
   onCopyCss: () => void;
-  status: string | null;
   onClose?: () => void;
 }) {
   function setColor(key: PaletteKey, color: string) {
@@ -91,7 +90,7 @@ export function ControlPanel({
                     onChange({ gradientType: value as GradientType })
                   }
                 />
-                {state.gradientType !== "arc" ? (
+                {state.gradientType === "linear" ? (
                   <Slider
                     label="Angle"
                     value={state.angle}
@@ -164,28 +163,19 @@ export function ControlPanel({
               </Folder>
             </div>
 
-            <div className="pt-1">
-              <ButtonGroup
-                buttons={[
-                  { label: "Shuffle", onClick: onShuffle },
-                  { label: "Copy CSS", onClick: onCopyCss },
-                  { label: "Download PNG", onClick: onExportPng },
-                ]}
-              />
-              <p
-                role="status"
-                style={{
-                  color: status?.startsWith("Could")
-                    ? "#f5b4b0"
-                    : "var(--dial-text-tertiary)",
-                  fontSize: 11,
-                  lineHeight: "15px",
-                  margin: "8px 0 0",
-                  textAlign: "center",
-                }}
-              >
-                {status ?? "Drag the points on the arc. PNG exports at 2×."}
-              </p>
+            <div className="dialkit-button-group pt-1">
+              <button type="button" className="dialkit-button" onClick={onShuffle}>
+                <Shuffle className="size-3.5" />
+                Shuffle
+              </button>
+              <button type="button" className="dialkit-button" onClick={onCopyCss}>
+                <ClipboardCopy className="size-3.5" />
+                Copy CSS
+              </button>
+              <button type="button" className="dialkit-button" onClick={onExportPng}>
+                <Download className="size-3.5" />
+                Download PNG
+              </button>
             </div>
           </Folder>
         </div>

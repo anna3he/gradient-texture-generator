@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 import { ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-react";
 import { ControlPanel } from "@/components/generator/control-panel";
 import { PreviewStage } from "@/components/generator/preview-stage";
@@ -14,8 +14,6 @@ import { cn } from "@/lib/utils";
 
 export function GeneratorApp() {
   const [state, setState] = useState<GeneratorState>(() => createInitialState());
-  const [status, setStatus] = useState<string | null>(null);
-  const [previewError, setPreviewError] = useState<string | null>(null);
   const [desktopPanelOpen, setDesktopPanelOpen] = useState(true);
   const [mobilePanelOpen, setMobilePanelOpen] = useState(false);
 
@@ -36,7 +34,6 @@ export function GeneratorApp() {
         },
       };
     });
-    setStatus("Shuffled glow, deep, and wash.");
   }, []);
 
   const applyPreset = useCallback((preset: StylePreset) => {
@@ -52,45 +49,28 @@ export function GeneratorApp() {
       angle: preset.angle,
       grain: { ...preset.grain, seed: current.grain.seed },
     }));
-    setStatus(`Applied ${preset.name}.`);
   }, []);
 
   const copyCss = useCallback(async () => {
     try {
       await navigator.clipboard.writeText(exportCssSnippet(state));
-      setStatus(
-        state.motion.playing
-          ? "Copied CSS with a live keyframe."
-          : "Copied CSS gradient to clipboard."
-      );
     } catch {
-      setStatus("Could not copy CSS. Check clipboard permissions.");
+      // Clipboard may be blocked; the button still completes.
     }
   }, [state]);
 
   const exportPng = useCallback(async () => {
-    try {
-      setStatus("Rendering PNG…");
-      const blob = await exportPngBlob(state);
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-");
-      link.href = url;
-      link.download = `vellum-${state.presetId}-${stamp}.png`;
-      document.body.append(link);
-      link.click();
-      link.remove();
-      URL.revokeObjectURL(url);
-      setStatus("Downloaded 2× PNG.");
-    } catch (error) {
-      setStatus(error instanceof Error ? error.message : "Could not export PNG.");
-    }
+    const blob = await exportPngBlob(state);
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-");
+    link.href = url;
+    link.download = `vellum-${state.presetId}-${stamp}.png`;
+    document.body.append(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
   }, [state]);
-
-  const banner = useMemo(
-    () => previewError ?? status,
-    [previewError, status]
-  );
 
   const panel = (
     <ControlPanel
@@ -100,7 +80,6 @@ export function GeneratorApp() {
       onApplyPreset={applyPreset}
       onExportPng={exportPng}
       onCopyCss={copyCss}
-      status={banner}
     />
   );
 
@@ -121,7 +100,7 @@ export function GeneratorApp() {
             Controls
           </button>
         </div>
-        <PreviewStage state={state} onChange={patch} onError={setPreviewError} />
+        <PreviewStage state={state} onChange={patch} onError={() => undefined} />
       </main>
 
       <div className="relative hidden h-full md:flex">
@@ -164,7 +143,6 @@ export function GeneratorApp() {
               onApplyPreset={applyPreset}
               onExportPng={exportPng}
               onCopyCss={copyCss}
-              status={banner}
               onClose={() => setMobilePanelOpen(false)}
             />
           </div>

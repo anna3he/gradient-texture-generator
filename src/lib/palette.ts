@@ -1,5 +1,5 @@
 import { clamp, createId, hexToHsl, hslToHex, mixHex, randomBetween, wrapHue } from "./color";
-import type { ColorPoint, ColorStop, Palette, PaletteKey } from "./types";
+import type { ColorPoint, ColorStop, GradientType, Palette, PaletteKey } from "./types";
 
 export const DEFAULT_POINTS = {
   deep: { x: 22, y: 18 },
@@ -21,29 +21,31 @@ export function paletteFromColors(
 ): Palette {
   return {
     deep: colorPoint(colors.deep, points.deep.x, points.deep.y),
-    glow: colorPoint(punchGlow(colors.glow), points.glow.x, points.glow.y),
+    glow: colorPoint(colors.glow, points.glow.x, points.glow.y),
     wash: colorPoint(colors.wash, points.wash.x, points.wash.y),
   };
 }
 
-export function punchGlow(hex: string) {
-  const hsl = hexToHsl(hex);
-  if (!hsl) return hex;
-  return hslToHex({
-    h: hsl.h,
-    s: clamp(hsl.s * 1.28 + 22, 62, 98),
-    l: clamp(Math.max(hsl.l, 50) + 8, 54, 70),
-  });
-}
+export function paletteToStops(palette: Palette, type: GradientType = "linear"): ColorStop[] {
+  if (type === "radial") {
+    const inner = mixHex(palette.wash.color, palette.glow.color, 0.42);
+    const outer = mixHex(palette.glow.color, palette.deep.color, 0.4);
+    return [
+      { id: createId(), color: palette.wash.color, position: 0 },
+      { id: createId(), color: inner, position: 26 },
+      { id: createId(), color: palette.glow.color, position: 46 },
+      { id: createId(), color: outer, position: 72 },
+      { id: createId(), color: palette.deep.color, position: 100 },
+    ];
+  }
 
-export function paletteToStops(palette: Palette): ColorStop[] {
-  const mid = mixHex(palette.glow.color, palette.wash.color, 0.48);
+  const mid = mixHex(palette.glow.color, palette.wash.color, 0.55);
+  const lift = mixHex(palette.deep.color, palette.glow.color, 0.5);
   return [
     { id: createId(), color: palette.deep.color, position: 0 },
-    { id: createId(), color: palette.deep.color, position: 8 },
-    { id: createId(), color: palette.glow.color, position: 18 },
-    { id: createId(), color: mid, position: 34 },
-    { id: createId(), color: palette.wash.color, position: 42 },
+    { id: createId(), color: lift, position: 22 },
+    { id: createId(), color: palette.glow.color, position: 44 },
+    { id: createId(), color: mid, position: 72 },
     { id: createId(), color: palette.wash.color, position: 100 },
   ];
 }
@@ -61,8 +63,8 @@ export function generatePalette(baseHue?: number, keep?: Palette): Palette {
     }),
     glow: hslToHex({
       h: glowHue,
-      s: randomBetween(72, 96),
-      l: randomBetween(54, 68),
+      s: randomBetween(48, 76),
+      l: randomBetween(44, 60),
     }),
     wash: hslToHex({
       h: hue,

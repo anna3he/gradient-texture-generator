@@ -191,3 +191,10 @@
 .dial-tab:hover {
   background: rgb(32 32 38 / 0.86);
 }
+
+.dialkit-button-group .dialkit-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}

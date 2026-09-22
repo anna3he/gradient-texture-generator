@@ -21,7 +21,7 @@ export const panelConfig = {
     },
   },
   colors: {
-    glow: { type: "color", default: "#2ad8c4" },
+    glow: { type: "color", default: "#1e6e68" },
     deep: { type: "color", default: "#1c2d9c" },
     wash: { type: "color", default: "#f5f8fa" },
   },
