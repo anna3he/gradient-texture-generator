@@ -10,7 +10,7 @@ The control panel is built with the [DialKit](https://www.dialkit.dev/) design s
 - Linear and radial stay available. Radial is centered: wash → glow → deep from the middle out.
 - Presets follow the reference mix: a rich deep, a bright glow, and a pale wash. Linear motion shifts interior stops, not the whole band.
 - A bit more wash on the canvas so the field stays airy.
-- Circular preset swatches: Sea, Sunrise, Dawn, Dusk, Ember, Mist, Sage, Linen
+- 4×4 flat preset tiles: Sea, Sunrise, Dawn, Dusk, Ember, Mist, Sage, Linen, Iris, Coral, Glacier, Honey, Orchid, Pine, Cobalt, Flare
 - Optional grain: on/off and opacity
 - Play/stop plus speed for a gentle live drift
 - Export **PNG at 2×** or **copy CSS**

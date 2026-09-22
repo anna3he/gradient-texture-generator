@@ -226,13 +226,14 @@
 .preset-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px 8px;
+  grid-template-rows: repeat(4, minmax(0, auto));
+  gap: 6px;
 }
 
 .preset-tile {
-  aspect-ratio: 1;
-  border: 1px solid rgb(255 255 255 / 0.1);
-  border-radius: 999px;
+  aspect-ratio: 3 / 4;
+  border: 1px solid rgb(255 255 255 / 0.08);
+  border-radius: 4px;
   background-color: #f4f4f4;
   background-size: cover;
   cursor: pointer;

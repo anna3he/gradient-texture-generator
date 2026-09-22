@@ -22,7 +22,7 @@ function presetPalette(
 
 export function presetPreviewCss(preset: StylePreset) {
   const { deep, glow, wash } = preset.palette;
-  return `radial-gradient(circle at 50% 50%, ${wash.color} 0%, ${glow.color} 46%, ${deep.color} 100%)`;
+  return `linear-gradient(180deg, ${deep.color} 0%, ${glow.color} 46%, ${wash.color} 100%)`;
 }
 
 export const STYLE_PRESETS: StylePreset[] = [
@@ -77,7 +77,7 @@ export const STYLE_PRESETS: StylePreset[] = [
     angle: 168,
     grain: { enabled: true, opacity: 14 },
     palette: presetPalette(
-      { deep: "#6b2e22", glow: "#ff7e3a", wash: "#fbf4ec" },
+      { deep: "#7a220e", glow: "#ff6414", wash: "#fff3e8" },
       { deep: { x: 14, y: 18 }, glow: { x: 34, y: 48 }, wash: { x: 82, y: 78 } }
     ),
   },
@@ -112,6 +112,94 @@ export const STYLE_PRESETS: StylePreset[] = [
     palette: presetPalette(
       { deep: "#8a6240", glow: "#efc888", wash: "#fbf8f2" },
       { deep: { x: 18, y: 64 }, glow: { x: 38, y: 34 }, wash: { x: 80, y: 22 } }
+    ),
+  },
+  {
+    id: "iris",
+    name: "Iris",
+    gradientType: "arc",
+    angle: 176,
+    grain: { enabled: true, opacity: 10 },
+    palette: presetPalette(
+      { deep: "#3a2878", glow: "#b89cff", wash: "#f6f3fb" },
+      { deep: { x: 20, y: 18 }, glow: { x: 44, y: 46 }, wash: { x: 78, y: 80 } }
+    ),
+  },
+  {
+    id: "coral",
+    name: "Coral",
+    gradientType: "arc",
+    angle: 170,
+    grain: { enabled: true, opacity: 10 },
+    palette: presetPalette(
+      { deep: "#8a3040", glow: "#ff7a8a", wash: "#fff4f5" },
+      { deep: { x: 16, y: 70 }, glow: { x: 40, y: 40 }, wash: { x: 80, y: 18 } }
+    ),
+  },
+  {
+    id: "glacier",
+    name: "Glacier",
+    gradientType: "arc",
+    angle: 180,
+    grain: { enabled: true, opacity: 12 },
+    palette: presetPalette(
+      { deep: "#204060", glow: "#8ce8f4", wash: "#f4fbfc" },
+      { deep: { x: 18, y: 16 }, glow: { x: 42, y: 44 }, wash: { x: 78, y: 78 } }
+    ),
+  },
+  {
+    id: "honey",
+    name: "Honey",
+    gradientType: "arc",
+    angle: 164,
+    grain: { enabled: true, opacity: 8 },
+    palette: presetPalette(
+      { deep: "#8a5a18", glow: "#ffd45a", wash: "#fff8ea" },
+      { deep: { x: 22, y: 72 }, glow: { x: 46, y: 38 }, wash: { x: 80, y: 16 } }
+    ),
+  },
+  {
+    id: "orchid",
+    name: "Orchid",
+    gradientType: "arc",
+    angle: 178,
+    grain: { enabled: true, opacity: 10 },
+    palette: presetPalette(
+      { deep: "#5a2068", glow: "#e878ff", wash: "#faf4fc" },
+      { deep: { x: 18, y: 22 }, glow: { x: 40, y: 50 }, wash: { x: 78, y: 80 } }
+    ),
+  },
+  {
+    id: "pine",
+    name: "Pine",
+    gradientType: "arc",
+    angle: 182,
+    grain: { enabled: true, opacity: 12 },
+    palette: presetPalette(
+      { deep: "#1e4030", glow: "#6ee0a0", wash: "#f3faf5" },
+      { deep: { x: 20, y: 78 }, glow: { x: 44, y: 42 }, wash: { x: 78, y: 16 } }
+    ),
+  },
+  {
+    id: "cobalt",
+    name: "Cobalt",
+    gradientType: "arc",
+    angle: 174,
+    grain: { enabled: true, opacity: 12 },
+    palette: presetPalette(
+      { deep: "#142878", glow: "#4d8cff", wash: "#f3f6fc" },
+      { deep: { x: 16, y: 18 }, glow: { x: 38, y: 46 }, wash: { x: 80, y: 78 } }
+    ),
+  },
+  {
+    id: "flare",
+    name: "Flare",
+    gradientType: "arc",
+    angle: 168,
+    grain: { enabled: true, opacity: 8 },
+    palette: presetPalette(
+      { deep: "#6a1848", glow: "#ff4ec8", wash: "#fff4fa" },
+      { deep: { x: 18, y: 20 }, glow: { x: 42, y: 48 }, wash: { x: 80, y: 82 } }
     ),
   },
 ];
