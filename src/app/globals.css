@@ -217,28 +217,22 @@
   padding: 2px 0 6px;
 }
 
-.preset-picker-label,
-.preset-group-label {
+.preset-picker-label {
   color: var(--dial-text-label);
   font-size: 11px;
   letter-spacing: 0.02em;
 }
 
-.preset-group-label {
-  margin: 0 0 6px;
-  color: var(--dial-text-tertiary);
-}
-
 .preset-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 6px;
+  gap: 10px 8px;
 }
 
 .preset-tile {
-  aspect-ratio: 3 / 5;
-  border: 1px solid rgb(255 255 255 / 0.08);
-  border-radius: 3px;
+  aspect-ratio: 1;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-radius: 999px;
   background-color: #f4f4f4;
   background-size: cover;
   cursor: pointer;
@@ -246,9 +240,9 @@
 }
 
 .preset-tile:hover {
-  border-color: rgb(255 255 255 / 0.28);
+  border-color: rgb(255 255 255 / 0.32);
 }
 
 .preset-tile[data-active="true"] {
-  box-shadow: 0 0 0 1px #fff;
+  box-shadow: 0 0 0 1.5px #fff;
 }

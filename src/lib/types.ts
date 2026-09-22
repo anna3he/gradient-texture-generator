@@ -58,12 +58,9 @@ export type GeneratorState = {
   motion: MotionSettings;
 };
 
-export type PresetCollection = "studio" | "tokyo";
-
 export type StylePreset = {
   id: string;
   name: string;
-  collection: PresetCollection;
   palette: Palette;
   gradientType: GradientType;
   angle: number;
