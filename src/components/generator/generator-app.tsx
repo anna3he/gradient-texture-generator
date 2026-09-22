@@ -25,11 +25,11 @@ export function GeneratorApp() {
 
   const shuffle = useCallback(() => {
     setState((current) => {
-      const currentHue = hexToHsl(current.palette.deep)?.h;
+      const currentHue = hexToHsl(current.palette.deep.color)?.h;
       return {
         ...current,
         presetId: "custom",
-        palette: generatePalette(currentHue),
+        palette: generatePalette(currentHue, current.palette),
         grain: {
           ...current.grain,
           seed: Math.floor(Math.random() * 1_000_000),
@@ -43,7 +43,11 @@ export function GeneratorApp() {
     setState((current) => ({
       ...current,
       presetId: preset.id,
-      palette: { ...preset.palette },
+      palette: {
+        deep: { ...preset.palette.deep },
+        glow: { ...preset.palette.glow },
+        wash: { ...preset.palette.wash },
+      },
       gradientType: preset.gradientType,
       angle: preset.angle,
       grain: { ...preset.grain, seed: current.grain.seed },
@@ -117,7 +121,7 @@ export function GeneratorApp() {
             Controls
           </button>
         </div>
-        <PreviewStage state={state} onError={setPreviewError} />
+        <PreviewStage state={state} onChange={patch} onError={setPreviewError} />
       </main>
 
       <div className="relative hidden h-full md:flex">

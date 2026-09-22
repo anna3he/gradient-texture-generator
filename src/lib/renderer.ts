@@ -1,4 +1,5 @@
 import { clamp, hexToRgb } from "./color";
+import { fillField } from "./field-gradient";
 import { paletteToStops, sortStops } from "./palette";
 import { EXPORT_SCALE, GRAIN_DEFAULTS } from "./panel-config";
 import type { GeneratorState } from "./types";
@@ -9,7 +10,7 @@ function cssAngleToRadians(angle: number) {
   return ((angle - 90) * Math.PI) / 180;
 }
 
-function fillGradient(
+function fillCanvasGradient(
   ctx: CanvasRenderingContext2D,
   state: GeneratorState,
   width: number,
@@ -22,8 +23,6 @@ function fillGradient(
 
   if (state.gradientType === "radial") {
     gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.hypot(width, height) / 1.15);
-  } else if (state.gradientType === "conic") {
-    gradient = ctx.createConicGradient((state.angle * Math.PI) / 180, cx, cy);
   } else {
     const theta = cssAngleToRadians(state.angle);
     const length = Math.hypot(width, height) / 2;
@@ -46,6 +45,21 @@ function fillGradient(
 
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, width, height);
+}
+
+function fillGradient(
+  ctx: CanvasRenderingContext2D,
+  state: GeneratorState,
+  width: number,
+  height: number,
+  quality: "preview" | "export"
+) {
+  const needsField = state.gradientType === "arc" || state.motion.playing;
+  if (needsField) {
+    fillField(ctx, state, width, height, quality);
+    return;
+  }
+  fillCanvasGradient(ctx, state, width, height);
 }
 
 function mulberry32(seed: number) {
@@ -132,7 +146,7 @@ function drawTiled(
 export async function renderGradient(
   canvas: HTMLCanvasElement,
   state: GeneratorState,
-  options?: { width?: number; height?: number }
+  options?: { width?: number; height?: number; quality?: "preview" | "export" }
 ) {
   const width = Math.max(1, Math.round(options?.width ?? state.canvas.width));
   const height = Math.max(1, Math.round(options?.height ?? state.canvas.height));
@@ -145,7 +159,7 @@ export async function renderGradient(
   }
 
   ctx.clearRect(0, 0, width, height);
-  fillGradient(ctx, state, width, height);
+  fillGradient(ctx, state, width, height, options?.quality ?? "preview");
 
   if (state.grain.enabled && state.grain.opacity > 0) {
     const tile = getGrainTile(state);
@@ -175,7 +189,7 @@ export async function exportPngBlob(state: GeneratorState) {
   const width = Math.min(8192, Math.round(state.canvas.width * EXPORT_SCALE));
   const height = Math.min(8192, Math.round(state.canvas.height * EXPORT_SCALE));
   const canvas = document.createElement("canvas");
-  await renderGradient(canvas, state, { width, height });
+  await renderGradient(canvas, state, { width, height, quality: "export" });
 
   return new Promise<Blob>((resolve, reject) => {
     canvas.toBlob((blob) => {

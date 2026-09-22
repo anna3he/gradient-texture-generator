@@ -1,17 +1,18 @@
 # Vellum
 
-A browser studio for **color-theory gradients** with a light grain finish. Shuffle stays inside a real harmony rule instead of rolling raw RGB.
+A browser studio for wash-heavy gradients with a bright glow, a light grain finish, and a live S-curve warp.
 
 The control panel is built with the [DialKit](https://www.dialkit.dev/) design system — same sliders, toggles, selects, folders, and type hierarchy.
 
 ## Features
 
-- Linear, radial, and conic gradients with manual stop editing
-- Three colors: a glow, a deep main, and a light wash
-- Named style presets (Sea, Sunrise, Dawn, Dusk, Ember, Mist, Sage, Linen)
+- **Arc** is the default: a squiggly field through three draggable color points (glow, deep, wash). Click a point to recolor it.
+- Linear and radial stay available. Conic is gone.
+- Mix is wash-first — about 60% wash, 20% glow, 10% deep — with a brighter, more saturated glow.
+- Named style presets: Sea, Sunrise, Dawn, Dusk, Ember, Mist, Sage, Linen
 - Optional grain: on/off and opacity
-- Play/stop plus a speed dial for a gentle live drift
-- Export **PNG at 2×** or **copy CSS**
+- Play/stop plus speed. Speed bends the field into traveling S-shaped lines instead of spinning a straight gradient.
+- Export **PNG at 2×** or **copy CSS** (arc CSS is a layered approximation; PNG is the source of truth)
 
 ## Run locally
 

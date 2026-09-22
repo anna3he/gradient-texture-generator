@@ -21,7 +21,7 @@ export const panelConfig = {
     },
   },
   colors: {
-    glow: { type: "color", default: "#1e6e68" },
+    glow: { type: "color", default: "#2ad8c4" },
     deep: { type: "color", default: "#1c2d9c" },
     wash: { type: "color", default: "#f5f8fa" },
   },
@@ -39,11 +39,11 @@ export const panelConfig = {
     type: {
       type: "select",
       options: [
+        { value: "arc", label: "Arc" },
         { value: "linear", label: "Linear" },
         { value: "radial", label: "Radial" },
-        { value: "conic", label: "Conic" },
       ],
-      default: "linear",
+      default: "arc",
     },
     angle: [180, 0, 360, 1],
   },

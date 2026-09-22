@@ -1,4 +1,4 @@
-export type GradientType = "linear" | "radial" | "conic";
+export type GradientType = "arc" | "linear" | "radial";
 
 export type ColorStop = {
   id: string;
@@ -6,11 +6,19 @@ export type ColorStop = {
   position: number;
 };
 
-export type Palette = {
-  deep: string;
-  glow: string;
-  wash: string;
+export type ColorPoint = {
+  color: string;
+  x: number;
+  y: number;
 };
+
+export type Palette = {
+  deep: ColorPoint;
+  glow: ColorPoint;
+  wash: ColorPoint;
+};
+
+export type PaletteKey = keyof Palette;
 
 export type GrainSettings = {
   enabled: boolean;
@@ -37,6 +45,7 @@ export type MotionSettings = {
   speed: number;
   originX: number;
   originY: number;
+  phase?: number;
 };
 
 export type GeneratorState = {

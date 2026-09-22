@@ -9,7 +9,11 @@ export function createInitialState(): GeneratorState {
 
   return {
     presetId: preset.id,
-    palette: { ...preset.palette },
+    palette: {
+      deep: { ...preset.palette.deep },
+      glow: { ...preset.palette.glow },
+      wash: { ...preset.palette.wash },
+    },
     gradientType: preset.gradientType,
     angle: preset.angle,
     grain: { ...preset.grain, seed: 1204 },

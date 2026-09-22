@@ -4,7 +4,8 @@ import { ButtonGroup, ColorControl, Folder, SelectControl, Slider, Toggle } from
 import { cssColorToHex } from "@/lib/color";
 import { panelConfig } from "@/lib/panel-config";
 import { CANVAS_PRESETS, STYLE_PRESETS } from "@/lib/presets";
-import type { CanvasPresetId, GeneratorState, GradientType, Palette, StylePreset } from "@/lib/types";
+import { setPaletteColor } from "@/lib/palette";
+import type { CanvasPresetId, GeneratorState, GradientType, PaletteKey, StylePreset } from "@/lib/types";
 
 export function ControlPanel({
   state,
@@ -25,10 +26,10 @@ export function ControlPanel({
   status: string | null;
   onClose?: () => void;
 }) {
-  function setPalette(patch: Partial<Palette>) {
+  function setColor(key: PaletteKey, color: string) {
     onChange({
       presetId: "custom",
-      palette: { ...state.palette, ...patch },
+      palette: setPaletteColor(state.palette, key, cssColorToHex(color)),
     });
   }
 
@@ -90,32 +91,34 @@ export function ControlPanel({
                     onChange({ gradientType: value as GradientType })
                   }
                 />
-                <Slider
-                  label="Angle"
-                  value={state.angle}
-                  min={0}
-                  max={360}
-                  step={1}
-                  unit="°"
-                  onChange={(angle) => onChange({ angle })}
-                />
+                {state.gradientType !== "arc" ? (
+                  <Slider
+                    label="Angle"
+                    value={state.angle}
+                    min={0}
+                    max={360}
+                    step={1}
+                    unit="°"
+                    onChange={(angle) => onChange({ angle })}
+                  />
+                ) : null}
               </Folder>
 
               <Folder title="Colors" defaultOpen>
                 <ColorControl
                   label="Glow"
-                  value={state.palette.glow}
-                  onChange={(color) => setPalette({ glow: cssColorToHex(color) })}
+                  value={state.palette.glow.color}
+                  onChange={(color) => setColor("glow", color)}
                 />
                 <ColorControl
                   label="Deep"
-                  value={state.palette.deep}
-                  onChange={(color) => setPalette({ deep: cssColorToHex(color) })}
+                  value={state.palette.deep.color}
+                  onChange={(color) => setColor("deep", color)}
                 />
                 <ColorControl
                   label="Wash"
-                  value={state.palette.wash}
-                  onChange={(color) => setPalette({ wash: cssColorToHex(color) })}
+                  value={state.palette.wash.color}
+                  onChange={(color) => setColor("wash", color)}
                 />
               </Folder>
 
@@ -181,7 +184,7 @@ export function ControlPanel({
                   textAlign: "center",
                 }}
               >
-                {status ?? "Glow into a light wash. PNG exports at 2×."}
+                {status ?? "Drag the points on the arc. PNG exports at 2×."}
               </p>
             </div>
           </Folder>
