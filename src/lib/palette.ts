@@ -15,6 +15,14 @@ export function colorPoint(color: string, x: number, y: number): ColorPoint {
   };
 }
 
+function companionHue(hue: number) {
+  if (hue >= 150 && hue <= 200) return wrapHue(hue + 52);
+  if (hue >= 20 && hue <= 55) return wrapHue(hue - 16);
+  if (hue >= 300 || hue < 20) return wrapHue(hue - 28);
+  if (hue >= 80 && hue < 150) return wrapHue(hue + 18);
+  return wrapHue(hue + 36);
+}
+
 export function deriveFamily(glow: string) {
   const hsl = hexToHsl(glow);
   if (!hsl) {
@@ -24,17 +32,17 @@ export function deriveFamily(glow: string) {
   return {
     glow: hslToHex({
       h: hsl.h,
-      s: clamp(Math.max(hsl.s, 62) + 10, 70, 96),
-      l: clamp(Math.max(hsl.l, 54) + 8, 58, 70),
+      s: clamp(Math.max(hsl.s, 58) + 8, 68, 94),
+      l: clamp(Math.max(hsl.l, 50) + 6, 54, 68),
     }),
     deep: hslToHex({
-      h: wrapHue(hsl.h - 4),
-      s: clamp(hsl.s * 0.72 + 14, 48, 78),
-      l: clamp(hsl.l * 0.36, 16, 28),
+      h: companionHue(hsl.h),
+      s: clamp(Math.max(hsl.s, 52) + 4, 58, 84),
+      l: clamp(20 + (hsl.l > 62 ? 2 : 0), 16, 28),
     }),
     wash: hslToHex({
       h: hsl.h,
-      s: clamp(hsl.s * 0.06 + 3, 4, 11),
+      s: clamp(hsl.s * 0.05 + 3, 3, 10),
       l: 97,
     }),
   };
@@ -58,16 +66,25 @@ export function paletteFromGlow(
   return paletteFromColors(deriveFamily(glow), points);
 }
 
-export function paletteToStops(palette: Palette, type: GradientType = "linear"): ColorStop[] {
+function wobble(phase: number | undefined, amplitude: number, offset: number) {
+  if (!phase) return 0;
+  return Math.sin(phase * 1.15 + offset) * amplitude;
+}
+
+export function paletteToStops(
+  palette: Palette,
+  type: GradientType = "linear",
+  phase?: number
+): ColorStop[] {
   if (type === "radial") {
     const inner = mixHslHex(palette.wash.color, palette.glow.color, 0.38);
     const outer = mixHslHex(palette.glow.color, palette.deep.color, 0.42);
     return [
       { id: createId(), color: palette.wash.color, position: 0 },
-      { id: createId(), color: palette.wash.color, position: 16 },
-      { id: createId(), color: inner, position: 34 },
-      { id: createId(), color: palette.glow.color, position: 52 },
-      { id: createId(), color: outer, position: 76 },
+      { id: createId(), color: palette.wash.color, position: 16 + wobble(phase, 2.2, 0.4) },
+      { id: createId(), color: inner, position: 34 + wobble(phase, 3.4, 1.1) },
+      { id: createId(), color: palette.glow.color, position: 52 + wobble(phase, 3.8, 0.2) },
+      { id: createId(), color: outer, position: 76 + wobble(phase, 2.6, 2.2) },
       { id: createId(), color: palette.deep.color, position: 100 },
     ];
   }
@@ -76,10 +93,10 @@ export function paletteToStops(palette: Palette, type: GradientType = "linear"):
   const fade = mixHslHex(palette.glow.color, palette.wash.color, 0.48);
   return [
     { id: createId(), color: palette.deep.color, position: 0 },
-    { id: createId(), color: lift, position: 18 },
-    { id: createId(), color: palette.glow.color, position: 36 },
-    { id: createId(), color: fade, position: 52 },
-    { id: createId(), color: palette.wash.color, position: 64 },
+    { id: createId(), color: lift, position: clamp(18 + wobble(phase, 3.2, 0.6), 10, 28) },
+    { id: createId(), color: palette.glow.color, position: clamp(36 + wobble(phase, 4.2, 1.4), 26, 46) },
+    { id: createId(), color: fade, position: clamp(52 + wobble(phase, 3.6, 2.1), 44, 60) },
+    { id: createId(), color: palette.wash.color, position: clamp(64 + wobble(phase, 2.4, 0.3), 58, 72) },
     { id: createId(), color: palette.wash.color, position: 100 },
   ];
 }
@@ -88,8 +105,8 @@ export function generatePalette(baseHue?: number, keep?: Palette): Palette {
   const hue = baseHue ?? randomBetween(0, 360);
   const glow = hslToHex({
     h: hue,
-    s: randomBetween(72, 94),
-    l: randomBetween(58, 68),
+    s: randomBetween(70, 92),
+    l: randomBetween(54, 66),
   });
 
   const points = keep

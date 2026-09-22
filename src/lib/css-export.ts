@@ -6,19 +6,25 @@ import { paletteToStops, sortStops } from "./palette";
 
 export { exportPixelSize };
 
-function stopList(state: GeneratorState) {
-  return sortStops(paletteToStops(state.palette, state.gradientType))
-    .map((stop) => `${stop.color} ${round(stop.position)}%`)
-    .join(", ");
-}
-
 function round(value: number) {
   return Number(value.toFixed(1));
 }
 
+function stopList(state: GeneratorState, animated = false) {
+  return sortStops(paletteToStops(state.palette, state.gradientType))
+    .map((stop, index, list) => {
+      const isEnd = index === 0 || index === list.length - 1;
+      if (animated && !isEnd) {
+        return `${stop.color} var(--vellum-s${index})`;
+      }
+      return `${stop.color} ${round(stop.position)}%`;
+    })
+    .join(", ");
+}
+
 export function gradientCss(state: GeneratorState, animated = false) {
-  const stops = stopList(state);
-  const angle = animated ? "var(--vellum-angle)" : `${round(state.angle)}deg`;
+  const stops = stopList(state, animated);
+  const angle = `${round(state.angle)}deg`;
 
   switch (state.gradientType) {
     case "radial":
@@ -33,30 +39,37 @@ export function gradientCss(state: GeneratorState, animated = false) {
 export function exportCssSnippet(state: GeneratorState) {
   const duration = motionDurationSec(state.motion.speed);
   const lines: string[] = [`/* Vellum · ${state.presetId} ${state.gradientType} */`];
+  const stops = sortStops(paletteToStops(state.palette, state.gradientType));
+  const animateStops =
+    state.motion.playing && (state.gradientType === "linear" || state.gradientType === "radial");
 
   if (state.gradientType === "arc") {
     lines.push(`/* Arc mesh approximated in CSS. PNG is the source of truth. */`);
   }
 
-  if (state.motion.playing && state.gradientType === "linear") {
-    lines.push(
-      `@property --vellum-angle {`,
-      `  syntax: "<angle>";`,
-      `  inherits: false;`,
-      `  initial-value: ${round(state.angle)}deg;`,
-      `}`
-    );
+  if (animateStops) {
+    stops.forEach((stop, index) => {
+      if (index === 0 || index === stops.length - 1) return;
+      lines.push(
+        `@property --vellum-s${index} {`,
+        `  syntax: "<percentage>";`,
+        `  inherits: false;`,
+        `  initial-value: ${round(stop.position)}%;`,
+        `}`
+      );
+    });
   }
 
   lines.push(`.surface {`);
-  lines.push(`  background: ${gradientCss(state, state.motion.playing && state.gradientType === "linear")};`);
+  lines.push(`  background: ${gradientCss(state, animateStops)};`);
   lines.push(`  background-color: ${state.palette.wash.color};`);
 
-  if (state.motion.playing && state.gradientType === "linear") {
-    lines.push(
-      `  --vellum-angle: ${round(state.angle)}deg;`,
-      `  animation: vellum-move ${duration}s linear infinite;`
-    );
+  if (animateStops) {
+    stops.forEach((stop, index) => {
+      if (index === 0 || index === stops.length - 1) return;
+      lines.push(`  --vellum-s${index}: ${round(stop.position)}%;`);
+    });
+    lines.push(`  animation: vellum-move ${duration}s ease-in-out infinite alternate;`);
   }
 
   if (state.grain.enabled && state.grain.opacity > 0) {
@@ -65,10 +78,25 @@ export function exportCssSnippet(state: GeneratorState) {
 
   lines.push(`}`);
 
-  if (state.motion.playing && state.gradientType === "linear") {
+  if (animateStops) {
+    const start = stops
+      .map((stop, index) => {
+        if (index === 0 || index === stops.length - 1) return null;
+        return `--vellum-s${index}: ${round(Math.max(6, stop.position - 4))}%`;
+      })
+      .filter(Boolean)
+      .join("; ");
+    const end = stops
+      .map((stop, index) => {
+        if (index === 0 || index === stops.length - 1) return null;
+        return `--vellum-s${index}: ${round(Math.min(94, stop.position + 4))}%`;
+      })
+      .filter(Boolean)
+      .join("; ");
     lines.push(
       `@keyframes vellum-move {`,
-      `  to { --vellum-angle: ${round(state.angle + 360)}deg; }`,
+      `  from { ${start}; }`,
+      `  to { ${end}; }`,
       `}`
     );
   }

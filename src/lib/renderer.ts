@@ -16,10 +16,11 @@ function fillCanvasGradient(
   width: number,
   height: number
 ) {
-  const stops = sortStops(paletteToStops(state.palette, state.gradientType));
-  const centered = state.gradientType === "radial";
-  const cx = ((centered ? 50 : clamp(state.motion.originX, 0, 100)) / 100) * width;
-  const cy = ((centered ? 50 : clamp(state.motion.originY, 0, 100)) / 100) * height;
+  const stops = sortStops(
+    paletteToStops(state.palette, state.gradientType, state.motion.playing ? state.motion.phase : undefined)
+  );
+  const cx = 0.5 * width;
+  const cy = 0.5 * height;
   let gradient: CanvasGradient;
 
   if (state.gradientType === "radial") {

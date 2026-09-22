@@ -21,9 +21,9 @@ export const panelConfig = {
     },
   },
   colors: {
-    glow: { type: "color", default: "#2fe0c8" },
-    deep: { type: "color", default: "#0f3d3a" },
-    wash: { type: "color", default: "#f4fbfa" },
+    glow: { type: "color", default: "#2ad4c0" },
+    deep: { type: "color", default: "#1c2d9c" },
+    wash: { type: "color", default: "#f5f8fa" },
   },
   canvas: {
     size: {

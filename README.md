@@ -8,7 +8,7 @@ The control panel is built with the [DialKit](https://www.dialkit.dev/) design s
 
 - **Arc** is the default: a soft mesh through three draggable color points (glow, deep, wash). Click a point to recolor it.
 - Linear and radial stay available. Radial is centered: wash → glow → deep from the middle out.
-- Each preset is one undertone: a bright glow, a deeper match, and a tinted wash, mixed so they blend cleanly.
+- Presets follow the reference mix: a rich deep, a bright glow, and a pale wash. Linear motion shifts interior stops, not the whole band.
 - A bit more wash on the canvas so the field stays airy.
 - Named style presets: Sea, Sunrise, Dawn, Dusk, Ember, Mist, Sage, Linen
 - Optional grain: on/off and opacity

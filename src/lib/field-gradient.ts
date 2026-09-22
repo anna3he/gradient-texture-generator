@@ -21,13 +21,27 @@ export function quadraticPoint(a: ColorPoint, b: ColorPoint, c: ColorPoint, t: n
 }
 
 export function shiftedPalette(state: GeneratorState): Palette {
-  const dx = state.motion.originX - 50;
-  const dy = state.motion.originY - 50;
-  if (dx === 0 && dy === 0) return state.palette;
+  const phase = state.motion.playing ? (state.motion.phase ?? 0) : 0;
+  if (phase === 0) return state.palette;
+
+  const drift = (amount: number, offset: number) => Math.sin(phase * 0.9 + offset) * amount;
+
   return {
-    deep: colorPoint(state.palette.deep.color, state.palette.deep.x + dx, state.palette.deep.y + dy),
-    glow: colorPoint(state.palette.glow.color, state.palette.glow.x + dx, state.palette.glow.y + dy),
-    wash: colorPoint(state.palette.wash.color, state.palette.wash.x + dx, state.palette.wash.y + dy),
+    deep: colorPoint(
+      state.palette.deep.color,
+      state.palette.deep.x + drift(3.2, 0.2),
+      state.palette.deep.y + drift(2.4, 1.1)
+    ),
+    glow: colorPoint(
+      state.palette.glow.color,
+      state.palette.glow.x + drift(4.6, 1.6),
+      state.palette.glow.y + drift(3.8, 0.4)
+    ),
+    wash: colorPoint(
+      state.palette.wash.color,
+      state.palette.wash.x + drift(1.4, 2.2),
+      state.palette.wash.y + drift(1.2, 2.8)
+    ),
   };
 }
 
@@ -44,14 +58,15 @@ function mixRgb(a: RGB, b: RGB, t: number): RGB {
 }
 
 function colorAlongCurve(t: number, deep: RGB, glow: RGB, wash: RGB): RGB {
-  if (t < 0.3) return mixRgb(deep, glow, t / 0.3);
-  if (t < 0.48) return mixRgb(glow, mixRgb(glow, wash, 0.4), (t - 0.3) / 0.18);
-  return mixRgb(mixRgb(glow, wash, 0.4), wash, (t - 0.48) / 0.52);
+  if (t < 0.2) return mixRgb(deep, glow, (t / 0.2) * 0.28);
+  if (t < 0.42) return mixRgb(mixRgb(deep, glow, 0.28), glow, (t - 0.2) / 0.22);
+  if (t < 0.58) return mixRgb(glow, mixRgb(glow, wash, 0.35), (t - 0.42) / 0.16);
+  return mixRgb(mixRgb(glow, wash, 0.35), wash, (t - 0.58) / 0.42);
 }
 
 export function buildCurve(palette: Palette): FieldSample[] {
-  const deep = toRgb(palette.deep.color, { r: 30, g: 40, b: 120 });
-  const glow = toRgb(palette.glow.color, { r: 80, g: 180, b: 160 });
+  const deep = toRgb(palette.deep.color, { r: 28, g: 45, b: 156 });
+  const glow = toRgb(palette.glow.color, { r: 42, g: 212, b: 192 });
   const wash = toRgb(palette.wash.color, { r: 245, g: 248, b: 250 });
   const samples: FieldSample[] = [];
 
@@ -63,7 +78,7 @@ export function buildCurve(palette: Palette): FieldSample[] {
       x: point.x,
       y: point.y,
       rgb: colorAlongCurve(t, deep, glow, wash),
-      weight: t > 0.55 ? 1.75 : t > 0.4 ? 1.2 : 1,
+      weight: t < 0.22 ? 2.15 : t > 0.62 ? 1.45 : 1.05,
     });
   }
 
@@ -76,19 +91,21 @@ export function sampleArc(u: number, v: number, samples: FieldSample[], wash: RG
   let wb = 0;
   let wsum = 0;
   let nearestGlow = 1;
+  let nearestDeep = 1;
 
   for (const sample of samples) {
     const dx = u - sample.x;
     const dy = v - sample.y;
     const dist2 = dx * dx + dy * dy;
-    const weight = (sample.weight * 1) / (dist2 + 0.026);
+    const epsilon = sample.t < 0.22 ? 0.008 : 0.02;
+    const weight = sample.weight / (dist2 + epsilon);
     wr += sample.rgb.r * weight;
     wg += sample.rgb.g * weight;
     wb += sample.rgb.b * weight;
     wsum += weight;
-    if (sample.t > 0.22 && sample.t < 0.5) {
-      nearestGlow = Math.min(nearestGlow, Math.sqrt(dist2));
-    }
+    const dist = Math.sqrt(dist2);
+    if (sample.t < 0.22) nearestDeep = Math.min(nearestDeep, dist);
+    if (sample.t >= 0.22 && sample.t < 0.52) nearestGlow = Math.min(nearestGlow, dist);
   }
 
   const blended = {
@@ -96,7 +113,8 @@ export function sampleArc(u: number, v: number, samples: FieldSample[], wash: RG
     g: wg / wsum,
     b: wb / wsum,
   };
-  const washMix = clamp(0.12 + Math.max(0, nearestGlow - 0.14) * 0.7, 0.12, 0.46);
+  const deepGuard = clamp((nearestDeep - 0.06) / 0.16, 0, 1);
+  const washMix = clamp(Math.max(0, nearestGlow - 0.18) * 0.5, 0, 0.34) * deepGuard;
   return mixRgb(blended, wash, washMix);
 }
 
@@ -154,11 +172,11 @@ export function fillArcField(
 }
 
 export function arcCssLayers(palette: Palette) {
-  const midDeep = mixHslHex(palette.deep.color, palette.glow.color, 0.5);
+  const midDeep = mixHslHex(palette.deep.color, palette.glow.color, 0.38);
   const midWash = mixHslHex(palette.glow.color, palette.wash.color, 0.45);
   return [
     `radial-gradient(circle at ${palette.wash.x}% ${palette.wash.y}%, ${palette.wash.color} 0%, ${midWash} 42%, transparent 74%)`,
     `radial-gradient(circle at ${palette.glow.x}% ${palette.glow.y}%, ${palette.glow.color} 0%, ${midWash} 30%, transparent 54%)`,
-    `radial-gradient(circle at ${palette.deep.x}% ${palette.deep.y}%, ${palette.deep.color} 0%, ${midDeep} 24%, transparent 48%)`,
+    `radial-gradient(circle at ${palette.deep.x}% ${palette.deep.y}%, ${palette.deep.color} 0%, ${midDeep} 22%, transparent 44%)`,
   ].join(", ");
 }

@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
+import { hexToRgb } from "./color";
 import { createInitialState } from "./default-state";
 import { buildCurve, quadraticPoint, sampleArc, shiftedPalette } from "./field-gradient";
 
@@ -20,25 +21,29 @@ describe("field gradient", () => {
     assert.ok(nearest.t > 0.2 && nearest.t < 0.8);
   });
 
-  it("blends the three colors instead of leaving a wash field", () => {
+  it("keeps deep saturated next to its point", () => {
     const state = createInitialState();
     const samples = buildCurve(state.palette);
-    const wash = { r: 245, g: 248, b: 250 };
-    const glow = sampleArc(state.palette.glow.x / 100, state.palette.glow.y / 100, samples, wash);
-    const glowRgb = samples[Math.floor(samples.length / 2)]?.rgb;
-    assert.ok(glowRgb);
-    const distance =
-      Math.abs(glow.r - glowRgb.r) + Math.abs(glow.g - glowRgb.g) + Math.abs(glow.b - glowRgb.b);
-    assert.ok(distance < 90);
+    const wash = hexToRgb(state.palette.wash.color) ?? { r: 245, g: 248, b: 250 };
+    const deep = hexToRgb(state.palette.deep.color);
+    assert.ok(deep);
+    const sampled = sampleArc(state.palette.deep.x / 100, state.palette.deep.y / 100, samples, wash);
+    const toDeep =
+      Math.abs(sampled.r - deep.r) + Math.abs(sampled.g - deep.g) + Math.abs(sampled.b - deep.b);
+    const toWash =
+      Math.abs(sampled.r - wash.r) + Math.abs(sampled.g - wash.g) + Math.abs(sampled.b - wash.b);
+    assert.ok(toDeep < toWash);
+    assert.ok(toDeep < 140);
   });
 
-  it("shifts the mesh when motion origin moves", () => {
+  it("drifts interior points from phase, not a whole-field slide", () => {
     const state = createInitialState();
     const moved = shiftedPalette({
       ...state,
-      motion: { ...state.motion, originX: 62, originY: 41 },
+      motion: { ...state.motion, playing: true, phase: 1.2 },
     });
-    assert.equal(moved.glow.x, state.palette.glow.x + 12);
-    assert.equal(moved.glow.y, state.palette.glow.y - 9);
+    assert.notEqual(moved.glow.x, state.palette.glow.x);
+    assert.ok(Math.abs(moved.glow.x - state.palette.glow.x) < 8);
+    assert.ok(Math.abs(moved.wash.x - state.palette.wash.x) < Math.abs(moved.glow.x - state.palette.glow.x) + 0.01);
   });
 });
