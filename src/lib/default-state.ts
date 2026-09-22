@@ -1,44 +1,24 @@
-import { generateStops } from "./harmony";
 import { STYLE_PRESETS } from "./presets";
 import type { GeneratorState } from "./types";
 
-const mist = STYLE_PRESETS[0];
-
 export function createInitialState(): GeneratorState {
-  const preset = mist ?? STYLE_PRESETS[0];
+  const preset = STYLE_PRESETS[0];
   if (!preset) {
     throw new Error("No style presets defined.");
   }
 
   return {
+    presetId: preset.id,
+    palette: { ...preset.palette },
     gradientType: preset.gradientType,
     angle: preset.angle,
-    stops: generateStops({
-      harmony: preset.harmony,
-      stopCount: 4,
-      lockHue: preset.lockHue,
-      baseHue: preset.baseHue,
-      satMin: preset.satMin,
-      satMax: preset.satMax,
-      lightMin: preset.lightMin,
-      lightMax: preset.lightMax,
-      positions: [0, 32, 66, 100],
-    }),
-    harmony: preset.harmony,
-    lockHue: preset.lockHue,
-    baseHue: preset.baseHue,
-    satMin: preset.satMin,
-    satMax: preset.satMax,
-    lightMin: preset.lightMin,
-    lightMax: preset.lightMax,
     grain: { ...preset.grain, seed: 1204 },
     canvas: { preset: "16:9", width: 1920, height: 1080 },
     motion: {
+      playing: false,
+      speed: 0.8,
       originX: 50,
       originY: 50,
-      playing: false,
-      mode: "both",
-      speed: 0.8,
     },
   };
 }

@@ -159,6 +159,25 @@
   background: rgb(255 255 255 / 0.14);
 }
 
+.dialkit-root[data-mode="inline"] {
+  height: 100%;
+}
+
+.dialkit-root[data-mode="inline"] .dialkit-folder-root {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+}
+
+.dialkit-root[data-mode="inline"] .dialkit-folder-root > .dialkit-folder-content,
+.dialkit-root[data-mode="inline"] .dialkit-folder-root > .dialkit-folder-content > .dialkit-folder-inner {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+}
+
 .dial-tab {
   border-radius: 10px 0 0 10px;
   background: rgb(22 22 26 / 0.78);

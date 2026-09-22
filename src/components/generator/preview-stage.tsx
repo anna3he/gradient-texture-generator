@@ -9,17 +9,14 @@ import type { GeneratorState } from "@/lib/types";
 export function PreviewStage({
   state,
   onError,
-  onMoveOrigin,
 }: {
   state: GeneratorState;
   onError: (message: string | null) => void;
-  onMoveOrigin: (originX: number, originY: number) => void;
 }) {
   const frameRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const stateRef = useRef(state);
   const [fit, setFit] = useState({ width: 960, height: 540 });
-  const dragging = useRef(false);
 
   useEffect(() => {
     stateRef.current = state;
@@ -100,49 +97,20 @@ export function PreviewStage({
     };
   }, [state.motion.playing, fit, onError]);
 
-  function originFromEvent(event: { clientX: number; clientY: number }) {
-    const canvas = canvasRef.current;
-    if (!canvas) return null;
-    const rect = canvas.getBoundingClientRect();
-    if (rect.width === 0 || rect.height === 0) return null;
-    return {
-      originX: Math.min(100, Math.max(0, ((event.clientX - rect.left) / rect.width) * 100)),
-      originY: Math.min(100, Math.max(0, ((event.clientY - rect.top) / rect.height) * 100)),
-    };
-  }
-
   const exportSize = exportPixelSize(state);
+  const presetLabel = state.presetId === "custom" ? "Custom" : state.presetId;
 
   return (
     <div ref={frameRef} className="relative flex min-h-0 flex-1 flex-col">
       <div className="pointer-events-none absolute inset-0 opacity-[0.22] [background-image:linear-gradient(to_right,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.05)_1px,transparent_1px)] [background-size:48px_48px]" />
       <div className="relative flex min-h-0 flex-1 items-center justify-center p-4 md:p-8">
-        <div className="relative">
-          <canvas
-            ref={canvasRef}
-            width={fit.width}
-            height={fit.height}
-            className="max-h-full max-w-full cursor-grab rounded-sm shadow-[0_24px_80px_rgba(0,0,0,0.45)] ring-1 ring-white/10 active:cursor-grabbing"
-            style={{ width: fit.width, height: fit.height }}
-            onPointerDown={(event) => {
-              dragging.current = true;
-              event.currentTarget.setPointerCapture(event.pointerId);
-              const next = originFromEvent(event);
-              if (next) onMoveOrigin(next.originX, next.originY);
-            }}
-            onPointerMove={(event) => {
-              if (!dragging.current) return;
-              const next = originFromEvent(event);
-              if (next) onMoveOrigin(next.originX, next.originY);
-            }}
-            onPointerUp={() => {
-              dragging.current = false;
-            }}
-            onPointerCancel={() => {
-              dragging.current = false;
-            }}
-          />
-        </div>
+        <canvas
+          ref={canvasRef}
+          width={fit.width}
+          height={fit.height}
+          className="max-h-full max-w-full rounded-sm shadow-[0_24px_80px_rgba(0,0,0,0.45)] ring-1 ring-white/10"
+          style={{ width: fit.width, height: fit.height }}
+        />
       </div>
       <div className="relative flex items-center justify-between px-4 pb-3 text-[11px] tracking-wide text-white/40 md:px-6">
         <span>
@@ -150,7 +118,7 @@ export function PreviewStage({
           {` · 2× ${exportSize.width} × ${exportSize.height}`}
           {state.motion.playing ? " · live" : ""}
         </span>
-        <span className="capitalize">{state.harmony.replace("-", " ")}</span>
+        <span className="capitalize">{presetLabel}</span>
       </div>
     </div>
   );

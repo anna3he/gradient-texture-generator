@@ -4,9 +4,10 @@ import { useCallback, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-react";
 import { ControlPanel } from "@/components/generator/control-panel";
 import { PreviewStage } from "@/components/generator/preview-stage";
+import { hexToHsl } from "@/lib/color";
 import { exportCssSnippet } from "@/lib/css-export";
 import { createInitialState } from "@/lib/default-state";
-import { generateStops } from "@/lib/harmony";
+import { generatePalette } from "@/lib/palette";
 import { exportPngBlob } from "@/lib/renderer";
 import type { GeneratorState, StylePreset } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -23,51 +24,29 @@ export function GeneratorApp() {
   }, []);
 
   const shuffle = useCallback(() => {
-    setState((current) => ({
-      ...current,
-      stops: generateStops({
-        harmony: current.harmony,
-        stopCount: current.stops.length,
-        lockHue: current.lockHue,
-        baseHue: current.baseHue,
-        satMin: current.satMin,
-        satMax: current.satMax,
-        lightMin: current.lightMin,
-        lightMax: current.lightMax,
-        positions: current.stops.map((stop) => stop.position),
-      }),
-      grain: {
-        ...current.grain,
-        seed: Math.floor(Math.random() * 1_000_000),
-      },
-    }));
-    setStatus("Shuffled inside the current harmony.");
+    setState((current) => {
+      const currentHue = hexToHsl(current.palette.deep)?.h;
+      return {
+        ...current,
+        presetId: "custom",
+        palette: generatePalette(currentHue),
+        grain: {
+          ...current.grain,
+          seed: Math.floor(Math.random() * 1_000_000),
+        },
+      };
+    });
+    setStatus("Shuffled glow, deep, and wash.");
   }, []);
 
   const applyPreset = useCallback((preset: StylePreset) => {
     setState((current) => ({
       ...current,
+      presetId: preset.id,
+      palette: { ...preset.palette },
       gradientType: preset.gradientType,
       angle: preset.angle,
-      harmony: preset.harmony,
-      lockHue: preset.lockHue,
-      baseHue: preset.baseHue,
-      satMin: preset.satMin,
-      satMax: preset.satMax,
-      lightMin: preset.lightMin,
-      lightMax: preset.lightMax,
-      grain: { ...preset.grain, seed: Math.floor(Math.random() * 1_000_000) },
-      stops: generateStops({
-        harmony: preset.harmony,
-        stopCount: Math.max(4, current.stops.length),
-        lockHue: preset.lockHue,
-        baseHue: preset.baseHue,
-        satMin: preset.satMin,
-        satMax: preset.satMax,
-        lightMin: preset.lightMin,
-        lightMax: preset.lightMax,
-        positions: current.stops.map((stop) => stop.position),
-      }),
+      grain: { ...preset.grain, seed: current.grain.seed },
     }));
     setStatus(`Applied ${preset.name}.`);
   }, []);
@@ -93,7 +72,7 @@ export function GeneratorApp() {
       const link = document.createElement("a");
       const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-");
       link.href = url;
-      link.download = `vellum-${state.harmony}-${stamp}.png`;
+      link.download = `vellum-${state.presetId}-${stamp}.png`;
       document.body.append(link);
       link.click();
       link.remove();
@@ -103,13 +82,6 @@ export function GeneratorApp() {
       setStatus(error instanceof Error ? error.message : "Could not export PNG.");
     }
   }, [state]);
-
-  const moveOrigin = useCallback((originX: number, originY: number) => {
-    setState((current) => ({
-      ...current,
-      motion: { ...current.motion, originX, originY },
-    }));
-  }, []);
 
   const banner = useMemo(
     () => previewError ?? status,
@@ -145,11 +117,7 @@ export function GeneratorApp() {
             Controls
           </button>
         </div>
-        <PreviewStage
-          state={state}
-          onError={setPreviewError}
-          onMoveOrigin={moveOrigin}
-        />
+        <PreviewStage state={state} onError={setPreviewError} />
       </main>
 
       <div className="relative hidden h-full md:flex">

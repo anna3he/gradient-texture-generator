@@ -1,5 +1,5 @@
 import { clamp, hexToRgb } from "./color";
-import { sortStops } from "./harmony";
+import { paletteToStops, sortStops } from "./palette";
 import { EXPORT_SCALE, GRAIN_DEFAULTS } from "./panel-config";
 import type { GeneratorState } from "./types";
 
@@ -15,7 +15,7 @@ function fillGradient(
   width: number,
   height: number
 ) {
-  const stops = sortStops(state.stops);
+  const stops = sortStops(paletteToStops(state.palette));
   const cx = (clamp(state.motion.originX, 0, 100) / 100) * width;
   const cy = (clamp(state.motion.originY, 0, 100) / 100) * height;
   let gradient: CanvasGradient;

@@ -1,25 +1,10 @@
 "use client";
 
-import {
-  ButtonGroup,
-  DialPad,
-  Folder,
-  SelectControl,
-  Slider,
-  Toggle,
-} from "dialkit";
-import { StopEditor } from "@/components/generator/stop-editor";
-import { HARMONY_BLURBS, resizeStops } from "@/lib/harmony";
+import { ButtonGroup, ColorControl, Folder, SelectControl, Slider, Toggle } from "dialkit";
+import { cssColorToHex } from "@/lib/color";
 import { panelConfig } from "@/lib/panel-config";
 import { CANVAS_PRESETS, STYLE_PRESETS } from "@/lib/presets";
-import type {
-  CanvasPresetId,
-  GeneratorState,
-  GradientType,
-  Harmony,
-  MotionMode,
-  StylePreset,
-} from "@/lib/types";
+import type { CanvasPresetId, GeneratorState, GradientType, Palette, StylePreset } from "@/lib/types";
 
 export function ControlPanel({
   state,
@@ -40,10 +25,12 @@ export function ControlPanel({
   status: string | null;
   onClose?: () => void;
 }) {
-  const canvasOptions = panelConfig.canvas.size.options;
-  const typeOptions = panelConfig.gradient.type.options;
-  const modeOptions = panelConfig.motion.mode.options;
-  const harmonyOptions = panelConfig.color.harmony.options;
+  function setPalette(patch: Partial<Palette>) {
+    onChange({
+      presetId: "custom",
+      palette: { ...state.palette, ...patch },
+    });
+  }
 
   return (
     <div className="dialkit-root h-full min-h-0" data-theme="dark" data-mode="inline">
@@ -68,85 +55,37 @@ export function ControlPanel({
             }
           >
             <div className="min-h-0 flex-1 overflow-y-auto">
-              <Folder title="Style presets" defaultOpen>
-                <div className="grid grid-cols-4 gap-1.5 px-0.5 pb-1">
-                  {STYLE_PRESETS.map((preset) => (
-                    <button
-                      key={preset.id}
-                      type="button"
-                      onClick={() => onApplyPreset(preset)}
-                      className="flex flex-col gap-1 rounded-[var(--dial-radius)] p-1 text-left hover:bg-[var(--dial-surface-hover)]"
-                    >
-                      <span
-                        className="h-7 rounded-[calc(var(--dial-radius)-2px)]"
-                        style={{
-                          background: `linear-gradient(135deg, ${preset.swatches.join(", ")})`,
-                        }}
-                      />
-                      <span
-                        style={{
-                          color: "var(--dial-text-label)",
-                          fontSize: 11,
-                          lineHeight: "14px",
-                        }}
-                      >
-                        {preset.name}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </Folder>
-
-              <Folder title="Canvas" defaultOpen>
+              <Folder title="Style" defaultOpen>
+                <SelectControl
+                  label="Preset"
+                  value={state.presetId}
+                  options={[
+                    ...panelConfig.style.preset.options,
+                    ...(state.presetId === "custom"
+                      ? [{ value: "custom", label: "Custom" }]
+                      : []),
+                  ]}
+                  onChange={(value) => {
+                    const preset = STYLE_PRESETS.find((item) => item.id === value);
+                    if (preset) onApplyPreset(preset);
+                  }}
+                />
                 <SelectControl
                   label="Size"
                   value={state.canvas.preset}
-                  options={canvasOptions}
+                  options={panelConfig.canvas.size.options}
                   onChange={(value) => {
                     const preset = value as CanvasPresetId;
-                    if (preset === "custom") {
-                      onChange({ canvas: { ...state.canvas, preset } });
-                      return;
-                    }
                     const next = CANVAS_PRESETS[preset];
                     onChange({
                       canvas: { preset, width: next.width, height: next.height },
                     });
                   }}
                 />
-                <Slider
-                  label="Width"
-                  value={state.canvas.width}
-                  min={64}
-                  max={8192}
-                  step={1}
-                  unit="px"
-                  onChange={(width) =>
-                    onChange({
-                      canvas: { ...state.canvas, preset: "custom", width },
-                    })
-                  }
-                />
-                <Slider
-                  label="Height"
-                  value={state.canvas.height}
-                  min={64}
-                  max={8192}
-                  step={1}
-                  unit="px"
-                  onChange={(height) =>
-                    onChange({
-                      canvas: { ...state.canvas, preset: "custom", height },
-                    })
-                  }
-                />
-              </Folder>
-
-              <Folder title="Gradient" defaultOpen>
                 <SelectControl
                   label="Type"
                   value={state.gradientType}
-                  options={typeOptions}
+                  options={panelConfig.gradient.type.options}
                   onChange={(value) =>
                     onChange({ gradientType: value as GradientType })
                   }
@@ -160,67 +99,32 @@ export function ControlPanel({
                   unit="°"
                   onChange={(angle) => onChange({ angle })}
                 />
-                <Slider
-                  label="Stops"
-                  value={state.stops.length}
-                  min={2}
-                  max={8}
-                  step={1}
-                  onChange={(count) =>
-                    onChange({
-                      stops: resizeStops(state.stops, count, {
-                        harmony: state.harmony,
-                        lockHue: state.lockHue,
-                        baseHue: state.baseHue,
-                        satMin: state.satMin,
-                        satMax: state.satMax,
-                        lightMin: state.lightMin,
-                        lightMax: state.lightMax,
-                      }),
-                    })
-                  }
+              </Folder>
+
+              <Folder title="Colors" defaultOpen>
+                <ColorControl
+                  label="Glow"
+                  value={state.palette.glow}
+                  onChange={(color) => setPalette({ glow: cssColorToHex(color) })}
                 />
-                <StopEditor
-                  stops={state.stops}
-                  onChange={(stops) => onChange({ stops })}
+                <ColorControl
+                  label="Deep"
+                  value={state.palette.deep}
+                  onChange={(color) => setPalette({ deep: cssColorToHex(color) })}
+                />
+                <ColorControl
+                  label="Wash"
+                  value={state.palette.wash}
+                  onChange={(color) => setPalette({ wash: cssColorToHex(color) })}
                 />
               </Folder>
 
               <Folder title="Motion" defaultOpen>
-                <DialPad
-                  label="Origin"
-                  value={{
-                    x: state.motion.originX,
-                    y: 100 - state.motion.originY,
-                  }}
-                  x={[50, 0, 100, 1]}
-                  y={[50, 0, 100, 1]}
-                  labels={{ x: "X", y: "Y" }}
-                  onChange={({ x, y }) =>
-                    onChange({
-                      motion: {
-                        ...state.motion,
-                        originX: x,
-                        originY: 100 - y,
-                      },
-                    })
-                  }
-                />
                 <Toggle
                   label="Play"
                   checked={state.motion.playing}
                   onChange={(playing) =>
                     onChange({ motion: { ...state.motion, playing } })
-                  }
-                />
-                <SelectControl
-                  label="Mode"
-                  value={state.motion.mode}
-                  options={modeOptions}
-                  onChange={(value) =>
-                    onChange({
-                      motion: { ...state.motion, mode: value as MotionMode },
-                    })
                   }
                 />
                 <Slider
@@ -231,79 +135,6 @@ export function ControlPanel({
                   step={0.05}
                   onChange={(speed) =>
                     onChange({ motion: { ...state.motion, speed } })
-                  }
-                />
-              </Folder>
-
-              <Folder title="Color theory" defaultOpen>
-                <SelectControl
-                  label="Harmony"
-                  value={state.harmony}
-                  options={harmonyOptions}
-                  onChange={(value) => onChange({ harmony: value as Harmony })}
-                />
-                <p
-                  style={{
-                    color: "var(--dial-text-tertiary)",
-                    fontSize: 11,
-                    lineHeight: "15px",
-                    margin: "0 0 6px",
-                  }}
-                >
-                  {HARMONY_BLURBS[state.harmony]}
-                </p>
-                <Toggle
-                  label="Lock hue"
-                  checked={state.lockHue}
-                  onChange={(lockHue) => onChange({ lockHue })}
-                />
-                <Slider
-                  label="Base hue"
-                  value={state.baseHue}
-                  min={0}
-                  max={360}
-                  step={1}
-                  unit="°"
-                  onChange={(baseHue) => onChange({ baseHue })}
-                />
-                <Slider
-                  label="Sat min"
-                  value={state.satMin}
-                  min={4}
-                  max={50}
-                  step={1}
-                  onChange={(satMin) =>
-                    onChange({ satMin: Math.min(satMin, state.satMax) })
-                  }
-                />
-                <Slider
-                  label="Sat max"
-                  value={state.satMax}
-                  min={8}
-                  max={70}
-                  step={1}
-                  onChange={(satMax) =>
-                    onChange({ satMax: Math.max(satMax, state.satMin) })
-                  }
-                />
-                <Slider
-                  label="Light min"
-                  value={state.lightMin}
-                  min={8}
-                  max={88}
-                  step={1}
-                  onChange={(lightMin) =>
-                    onChange({ lightMin: Math.min(lightMin, state.lightMax) })
-                  }
-                />
-                <Slider
-                  label="Light max"
-                  value={state.lightMax}
-                  min={16}
-                  max={96}
-                  step={1}
-                  onChange={(lightMax) =>
-                    onChange({ lightMax: Math.max(lightMax, state.lightMin) })
                   }
                 />
               </Folder>
@@ -350,7 +181,7 @@ export function ControlPanel({
                   textAlign: "center",
                 }}
               >
-                {status ?? "PNG exports at 2×. Shuffle stays in the current harmony."}
+                {status ?? "Glow into a light wash. PNG exports at 2×."}
               </p>
             </div>
           </Folder>

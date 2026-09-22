@@ -7,10 +7,10 @@ The control panel is built with the [DialKit](https://www.dialkit.dev/) design s
 ## Features
 
 - Linear, radial, and conic gradients with manual stop editing
-- Harmony-constrained shuffle, optional locked base hue, saturation/lightness ranges
-- Soft natural style presets (mist, sand, sage, clay, haze, drift, linen, smoke)
+- Three colors: a glow, a deep main, and a light wash
+- Named style presets (Sea, Sunrise, Dawn, Dusk, Ember, Mist, Sage, Linen)
 - Optional grain: on/off and opacity
-- Move the gradient origin (drag the preview or the origin pad), then Play to spin and/or drift it
+- Play/stop plus a speed dial for a gentle live drift
 - Export **PNG at 2×** or **copy CSS**
 
 ## Run locally

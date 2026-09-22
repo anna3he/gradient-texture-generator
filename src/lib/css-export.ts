@@ -1,12 +1,12 @@
 import type { GeneratorState } from "./types";
 import { exportPixelSize } from "./export-size";
-import { sortStops } from "./harmony";
 import { motionDurationSec } from "./motion";
+import { paletteToStops, sortStops } from "./palette";
 
 export { exportPixelSize };
 
 function stopList(state: GeneratorState) {
-  return sortStops(state.stops)
+  return sortStops(paletteToStops(state.palette))
     .map((stop) => `${stop.color} ${round(stop.position)}%`)
     .join(", ");
 }
@@ -41,7 +41,7 @@ export function exportCssSnippet(state: GeneratorState) {
     state.motion.originY !== 50;
   const duration = motionDurationSec(state.motion.speed);
   const lines: string[] = [
-    `/* Vellum · ${state.harmony} ${state.gradientType} */`,
+    `/* Vellum · ${state.presetId} ${state.gradientType} */`,
   ];
 
   if (state.motion.playing) {
@@ -68,13 +68,11 @@ export function exportCssSnippet(state: GeneratorState) {
   lines.push(`  background: ${gradientCss(state, state.motion.playing)};`);
 
   if (state.motion.playing) {
-    const spin = state.motion.mode !== "drift";
-    const drift = state.motion.mode !== "spin";
     lines.push(
       `  --vellum-angle: ${round(state.angle)}deg;`,
       `  --vellum-x: ${round(state.motion.originX)}%;`,
       `  --vellum-y: ${round(state.motion.originY)}%;`,
-      `  animation: vellum-move ${duration}s ${spin && !drift ? "linear" : "ease-in-out"} infinite${spin && drift ? " alternate" : ""};`
+      `  animation: vellum-move ${duration}s ease-in-out infinite alternate;`
     );
   } else if (animate && state.gradientType === "linear") {
     lines.push(
@@ -90,23 +88,12 @@ export function exportCssSnippet(state: GeneratorState) {
   lines.push(`}`);
 
   if (state.motion.playing) {
-    const spin = state.motion.mode !== "drift";
-    const drift = state.motion.mode !== "spin";
-    lines.push(`@keyframes vellum-move {`);
-    if (spin && !drift) {
-      lines.push(`  to { --vellum-angle: ${round(state.angle + 360)}deg; }`);
-    } else if (drift && !spin) {
-      lines.push(
-        `  0% { --vellum-x: ${round(clampPct(state.motion.originX - 12))}%; --vellum-y: ${round(clampPct(state.motion.originY + 8))}%; }`,
-        `  100% { --vellum-x: ${round(clampPct(state.motion.originX + 12))}%; --vellum-y: ${round(clampPct(state.motion.originY - 8))}%; }`
-      );
-    } else {
-      lines.push(
-        `  0% { --vellum-angle: ${round(state.angle)}deg; --vellum-x: ${round(clampPct(state.motion.originX - 10))}%; --vellum-y: ${round(clampPct(state.motion.originY + 8))}%; }`,
-        `  100% { --vellum-angle: ${round(state.angle + 180)}deg; --vellum-x: ${round(clampPct(state.motion.originX + 10))}%; --vellum-y: ${round(clampPct(state.motion.originY - 8))}%; }`
-      );
-    }
-    lines.push(`}`);
+    lines.push(
+      `@keyframes vellum-move {`,
+      `  0% { --vellum-angle: ${round(state.angle)}deg; --vellum-x: ${round(clampPct(state.motion.originX - 10))}%; --vellum-y: ${round(clampPct(state.motion.originY + 8))}%; }`,
+      `  100% { --vellum-angle: ${round(state.angle + 180)}deg; --vellum-x: ${round(clampPct(state.motion.originX + 10))}%; --vellum-y: ${round(clampPct(state.motion.originY - 8))}%; }`,
+      `}`
+    );
   }
 
   return lines.join("\n");
