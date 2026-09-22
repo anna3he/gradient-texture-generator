@@ -1,7 +1,10 @@
 import type { GeneratorState } from "./types";
+import { exportPixelSize } from "./export-size";
 import { sortStops } from "./harmony";
 import { motionDurationSec } from "./motion";
 import { TEXTURE_BY_ID } from "./textures";
+
+export { exportPixelSize };
 
 function stopList(state: GeneratorState) {
   return sortStops(state.stops)
@@ -122,12 +125,4 @@ export function exportCssSnippet(state: GeneratorState) {
 
 function clampPct(value: number) {
   return Math.min(96, Math.max(4, value));
-}
-
-export function exportPixelSize(state: GeneratorState) {
-  const scale = state.resolutionScale;
-  return {
-    width: Math.min(8192, Math.round(state.canvas.width * scale)),
-    height: Math.min(8192, Math.round(state.canvas.height * scale)),
-  };
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { exportPixelSize } from "@/lib/css-export";
+import { exportPixelSize } from "@/lib/export-size";
 import { applyMotion } from "@/lib/motion";
 import { previewSize, renderGradient } from "@/lib/renderer";
 import type { GeneratorState } from "@/lib/types";

@@ -8,7 +8,7 @@
     "start": "next start --port 43217 --hostname 127.0.0.1",
     "lint": "eslint",
     "textures": "node scripts/generate-textures.mjs",
-    "test": "npx --yes tsx --test src/lib/harmony.test.ts"
+    "test": "npx --yes tsx --test src/lib/*.test.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",

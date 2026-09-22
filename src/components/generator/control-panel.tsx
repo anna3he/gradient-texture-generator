@@ -14,7 +14,7 @@ import { Switch } from "@/components/ui/switch";
 import { DialSlider } from "@/components/generator/dial-slider";
 import { Folder } from "@/components/generator/folder";
 import { StopEditor } from "@/components/generator/stop-editor";
-import { exportPixelSize } from "@/lib/css-export";
+import { exportPixelSize } from "@/lib/export-size";
 import { HARMONY_BLURBS, HARMONY_LABELS, resizeStops } from "@/lib/harmony";
 import { MOTION_MODE_LABELS } from "@/lib/motion";
 import { CANVAS_PRESETS, STYLE_PRESETS } from "@/lib/presets";

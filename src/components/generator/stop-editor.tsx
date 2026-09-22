@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import { Minus, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { createId, normalizeHex } from "@/lib/color";
+import { createId, draftHex, normalizeHex } from "@/lib/color";
 import { sampleGradientColor, sortStops } from "@/lib/harmony";
 import type { ColorStop } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -19,7 +19,14 @@ export function StopEditor({
   const trackRef = useRef<HTMLDivElement>(null);
   const [selectedId, setSelectedId] = useState(stops[0]?.id ?? "");
   const [dragId, setDragId] = useState<string | null>(null);
+  const [hexDraft, setHexDraft] = useState<{ id: string; value: string } | null>(
+    null
+  );
   const selected = stops.find((stop) => stop.id === selectedId) ?? stops[0];
+  const hexValue =
+    hexDraft && selected && hexDraft.id === selected.id
+      ? hexDraft.value
+      : (selected?.color ?? "");
 
   function positionFromEvent(event: { clientX: number }) {
     const track = trackRef.current;
@@ -116,25 +123,36 @@ export function StopEditor({
           <input
             type="color"
             className="absolute inset-0 size-[150%] -translate-x-1/8 -translate-y-1/8 cursor-pointer"
-            value={normalizeHex(selected?.color ?? "#888888") ?? "#888888"}
+            value={
+              normalizeHex(selected?.color ?? "#888888", { short: false }) ??
+              "#888888"
+            }
             onChange={(event) => {
               if (!selected) return;
-              updateStop(selected.id, { color: event.target.value });
+              const color = event.target.value;
+              setHexDraft(null);
+              updateStop(selected.id, { color });
             }}
           />
         </label>
         <Input
-          value={selected?.color ?? ""}
+          value={hexValue}
           spellCheck={false}
           className="h-8 font-mono text-[12px] uppercase"
           onChange={(event) => {
             if (!selected) return;
-            const next = event.target.value.startsWith("#")
-              ? event.target.value
-              : `#${event.target.value}`;
-            const normalized = normalizeHex(next);
-            if (normalized) updateStop(selected.id, { color: normalized });
-            else updateStop(selected.id, { color: next });
+            const next = draftHex(event.target.value);
+            setHexDraft({ id: selected.id, value: next });
+            const complete = normalizeHex(next, { short: false });
+            if (complete) updateStop(selected.id, { color: complete });
+          }}
+          onBlur={() => {
+            if (!selected) return;
+            const complete = normalizeHex(hexValue);
+            if (complete) {
+              updateStop(selected.id, { color: complete });
+            }
+            setHexDraft(null);
           }}
         />
         <div className="ml-auto flex items-center gap-1">

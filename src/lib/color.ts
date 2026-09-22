@@ -118,9 +118,20 @@ export function hexToHsl(hex: string): HSL | null {
   return rgb ? rgbToHsl(rgb) : null;
 }
 
-export function normalizeHex(hex: string) {
+export function normalizeHex(hex: string, options?: { short?: boolean }) {
+  const allowShort = options?.short ?? true;
+  const normalized = hex.trim().replace("#", "");
+  if (normalized.length === 3 && !allowShort) {
+    return null;
+  }
   const rgb = hexToRgb(hex);
   return rgb ? rgbToHex(rgb) : null;
+}
+
+export function draftHex(value: string) {
+  const trimmed = value.trim();
+  const withHash = trimmed.startsWith("#") ? trimmed : `#${trimmed}`;
+  return withHash.slice(0, 7);
 }
 
 export function mixHex(a: string, b: string, t: number) {
