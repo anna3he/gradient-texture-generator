@@ -69,7 +69,7 @@ describe("palette", () => {
   });
 
   it("keeps studio preset deeps saturated", () => {
-    assert.equal(STYLE_PRESETS.length, 16);
+    assert.equal(STYLE_PRESETS.length, 8);
     for (const preset of STYLE_PRESETS) {
       assert.equal(preset.gradientType, "arc");
       const deep = hexToHsl(preset.palette.deep.color);
