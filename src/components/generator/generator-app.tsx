@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { SlidersHorizontal } from "lucide-react";
+import { ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ControlPanel } from "@/components/generator/control-panel";
 import { PreviewStage } from "@/components/generator/preview-stage";
@@ -10,12 +10,14 @@ import { createInitialState } from "@/lib/default-state";
 import { generateStops } from "@/lib/harmony";
 import { exportPngBlob } from "@/lib/renderer";
 import type { GeneratorState, StylePreset } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
 export function GeneratorApp() {
   const [state, setState] = useState<GeneratorState>(() => createInitialState());
   const [status, setStatus] = useState<string | null>(null);
   const [previewError, setPreviewError] = useState<string | null>(null);
-  const [panelOpen, setPanelOpen] = useState(false);
+  const [desktopPanelOpen, setDesktopPanelOpen] = useState(true);
+  const [mobilePanelOpen, setMobilePanelOpen] = useState(false);
 
   const patch = useCallback((next: Partial<GeneratorState>) => {
     setState((current) => ({ ...current, ...next }));
@@ -75,7 +77,11 @@ export function GeneratorApp() {
   const copyCss = useCallback(async () => {
     try {
       await navigator.clipboard.writeText(exportCssSnippet(state));
-      setStatus("Copied CSS gradient to clipboard.");
+      setStatus(
+        state.motion.playing
+          ? "Copied CSS with a live keyframe."
+          : "Copied CSS gradient to clipboard."
+      );
     } catch {
       setStatus("Could not copy CSS. Check clipboard permissions.");
     }
@@ -94,54 +100,89 @@ export function GeneratorApp() {
       link.click();
       link.remove();
       URL.revokeObjectURL(url);
-      setStatus("Downloaded PNG.");
+      setStatus("Downloaded PNG still.");
     } catch (error) {
       setStatus(error instanceof Error ? error.message : "Could not export PNG.");
     }
   }, [state]);
+
+  const moveOrigin = useCallback((originX: number, originY: number) => {
+    setState((current) => ({
+      ...current,
+      motion: { ...current.motion, originX, originY },
+    }));
+  }, []);
 
   const banner = useMemo(
     () => previewError ?? status,
     [previewError, status]
   );
 
+  const panel = (
+    <ControlPanel
+      state={state}
+      onChange={patch}
+      onShuffle={shuffle}
+      onApplyPreset={applyPreset}
+      onExportPng={exportPng}
+      onCopyCss={copyCss}
+      status={banner}
+    />
+  );
+
   return (
     <div className="flex h-dvh min-h-0 bg-[#0b0b0d] text-white">
+      <div className="relative hidden h-full md:flex">
+        <div
+          className={cn(
+            "h-full overflow-hidden transition-[width] duration-300 ease-out",
+            desktopPanelOpen ? "w-[332px] lg:w-[352px]" : "w-0"
+          )}
+        >
+          <div className="h-full w-[332px] p-3 pr-1.5 lg:w-[352px]">{panel}</div>
+        </div>
+        <button
+          type="button"
+          className="dial-tab my-auto flex h-20 w-5 shrink-0 items-center justify-center"
+          onClick={() => setDesktopPanelOpen((open) => !open)}
+          aria-expanded={desktopPanelOpen}
+          aria-label={desktopPanelOpen ? "Close controls" : "Open controls"}
+        >
+          {desktopPanelOpen ? (
+            <ChevronLeft className="size-3.5 text-white/70" />
+          ) : (
+            <ChevronRight className="size-3.5 text-white/70" />
+          )}
+        </button>
+      </div>
+
       <main className="relative flex min-w-0 flex-1 flex-col">
         <div className="flex items-center justify-between px-4 py-3 md:hidden">
           <div>
             <p className="text-sm font-medium">Vellum</p>
             <p className="text-[11px] text-white/45">Gradient & texture studio</p>
           </div>
-          <Button size="sm" variant="secondary" onClick={() => setPanelOpen(true)}>
+          <Button size="sm" variant="secondary" onClick={() => setMobilePanelOpen(true)}>
             <SlidersHorizontal data-icon="inline-start" />
             Controls
           </Button>
         </div>
-        <PreviewStage state={state} onError={setPreviewError} />
+        <PreviewStage
+          state={state}
+          onError={setPreviewError}
+          onMoveOrigin={moveOrigin}
+        />
       </main>
 
-      <div className="hidden w-[320px] shrink-0 p-3 md:block lg:w-[340px]">
-        <ControlPanel
-          state={state}
-          onChange={patch}
-          onShuffle={shuffle}
-          onApplyPreset={applyPreset}
-          onExportPng={exportPng}
-          onCopyCss={copyCss}
-          status={banner}
-        />
-      </div>
-
-      {panelOpen ? (
+      {mobilePanelOpen ? (
         <div className="fixed inset-0 z-40 md:hidden">
           <button
             type="button"
             className="absolute inset-0 bg-black/55"
             aria-label="Dismiss controls"
-            onClick={() => setPanelOpen(false)}
+            onClick={() => setMobilePanelOpen(false)}
           />
-          <div className="absolute inset-y-0 right-0 w-[min(100%,340px)] p-3">
+          <div className="absolute inset-y-0 left-0 w-[min(100%,340px)] p-3">
             <ControlPanel
               state={state}
               onChange={patch}
@@ -150,7 +191,7 @@ export function GeneratorApp() {
               onExportPng={exportPng}
               onCopyCss={copyCss}
               status={banner}
-              onClose={() => setPanelOpen(false)}
+              onClose={() => setMobilePanelOpen(false)}
             />
           </div>
         </div>

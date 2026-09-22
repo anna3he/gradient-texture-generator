@@ -17,12 +17,12 @@ function fillGradient(
   height: number
 ) {
   const stops = sortStops(state.stops);
-  const cx = width / 2;
-  const cy = height / 2;
+  const cx = (clamp(state.motion.originX, 0, 100) / 100) * width;
+  const cy = (clamp(state.motion.originY, 0, 100) / 100) * height;
   let gradient: CanvasGradient;
 
   if (state.gradientType === "radial") {
-    gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.hypot(cx, cy));
+    gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.hypot(width, height) / 1.15);
   } else if (state.gradientType === "conic") {
     gradient = ctx.createConicGradient((state.angle * Math.PI) / 180, cx, cy);
   } else {

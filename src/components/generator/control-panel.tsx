@@ -1,6 +1,6 @@
 "use client";
 
-import { Copy, Download, Shuffle, X } from "lucide-react";
+import { Copy, Download, Pause, Play, Shuffle, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -14,7 +14,9 @@ import { Switch } from "@/components/ui/switch";
 import { DialSlider } from "@/components/generator/dial-slider";
 import { Folder } from "@/components/generator/folder";
 import { StopEditor } from "@/components/generator/stop-editor";
+import { exportPixelSize } from "@/lib/css-export";
 import { HARMONY_BLURBS, HARMONY_LABELS, resizeStops } from "@/lib/harmony";
+import { MOTION_MODE_LABELS } from "@/lib/motion";
 import { CANVAS_PRESETS, STYLE_PRESETS } from "@/lib/presets";
 import { TEXTURE_LIBRARY } from "@/lib/textures";
 import type {
@@ -23,6 +25,7 @@ import type {
   GeneratorState,
   GradientType,
   Harmony,
+  MotionMode,
   StylePreset,
 } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -34,6 +37,12 @@ const GRADIENT_TYPES: { id: GradientType; label: string }[] = [
 ];
 
 const BLENDS: BlendMode[] = ["multiply", "overlay", "soft-light", "screen"];
+
+const RESOLUTION_OPTIONS = [
+  { scale: 1, label: "1× · current size" },
+  { scale: 2, label: "2×" },
+  { scale: 3, label: "3×" },
+] as const;
 
 export function ControlPanel({
   state,
@@ -187,6 +196,78 @@ export function ControlPanel({
           <StopEditor
             stops={state.stops}
             onChange={(stops) => onChange({ stops })}
+          />
+        </Folder>
+
+        <Folder title="Motion">
+          <p className="text-[11px] leading-4 text-white/40">
+            Drag the preview to move the origin. Play spins the angle and/or drifts the center.
+          </p>
+          <DialSlider
+            label="Origin X"
+            value={state.motion.originX}
+            min={0}
+            max={100}
+            suffix="%"
+            onChange={(originX) =>
+              onChange({ motion: { ...state.motion, originX } })
+            }
+          />
+          <DialSlider
+            label="Origin Y"
+            value={state.motion.originY}
+            min={0}
+            max={100}
+            suffix="%"
+            onChange={(originY) =>
+              onChange({ motion: { ...state.motion, originY } })
+            }
+          />
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant={state.motion.playing ? "secondary" : "default"}
+              onClick={() =>
+                onChange({
+                  motion: { ...state.motion, playing: !state.motion.playing },
+                })
+              }
+            >
+              {state.motion.playing ? (
+                <Pause data-icon="inline-start" />
+              ) : (
+                <Play data-icon="inline-start" />
+              )}
+              {state.motion.playing ? "Pause" : "Play"}
+            </Button>
+            <Select
+              value={state.motion.mode}
+              onValueChange={(value) =>
+                onChange({
+                  motion: { ...state.motion, mode: value as MotionMode },
+                })
+              }
+            >
+              <SelectTrigger className="h-7 min-w-0 flex-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.entries(MOTION_MODE_LABELS).map(([id, label]) => (
+                  <SelectItem key={id} value={id}>
+                    {label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <DialSlider
+            label="Speed"
+            value={state.motion.speed}
+            min={0.25}
+            max={2.5}
+            step={0.05}
+            disabled={!state.motion.playing}
+            onChange={(speed) => onChange({ motion: { ...state.motion, speed } })}
           />
         </Folder>
 
@@ -377,18 +458,41 @@ export function ControlPanel({
         </Folder>
 
         <Folder title="Export">
-          <DialSlider
-            label="Resolution scale"
-            value={state.resolutionScale}
-            min={0.5}
-            max={3}
-            step={0.5}
-            suffix="×"
-            onChange={(resolutionScale) => onChange({ resolutionScale })}
-          />
+          <label className="grid gap-1.5">
+            <span className="text-[12px] text-white/70">Resolution</span>
+            <Select
+              value={String(state.resolutionScale)}
+              onValueChange={(value) =>
+                onChange({ resolutionScale: Number(value) })
+              }
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {RESOLUTION_OPTIONS.map((option) => {
+                  const width = Math.min(
+                    8192,
+                    Math.round(state.canvas.width * option.scale)
+                  );
+                  const height = Math.min(
+                    8192,
+                    Math.round(state.canvas.height * option.scale)
+                  );
+                  return (
+                    <SelectItem key={option.scale} value={String(option.scale)}>
+                      {option.label} · {width} × {height}
+                    </SelectItem>
+                  );
+                })}
+              </SelectContent>
+            </Select>
+          </label>
           <p className="text-[11px] text-white/40">
-            PNG at {Math.round(state.canvas.width * state.resolutionScale)} ×{" "}
-            {Math.round(state.canvas.height * state.resolutionScale)}
+            PNG at {exportPixelSize(state).width} × {exportPixelSize(state).height}
+            {state.motion.playing
+              ? ". Copy CSS includes a live keyframe. PNG is still a still."
+              : ""}
           </p>
         </Folder>
       </div>

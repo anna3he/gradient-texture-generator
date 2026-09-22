@@ -9,7 +9,8 @@ A browser studio for **color-theory gradients** with live grain and paper textur
 - Procedural grain: intensity, opacity, size, mono or colored
 - Built-in texture library: tracing paper, vellum, canvas weave, film grain
 - Canvas presets (16:9, 4:3, 1:1, 9:16, 3:2, OG) plus custom size
-- Export **PNG** at a resolution scale, or **copy CSS** for the gradient
+- Move the gradient origin (drag the preview, or Origin X/Y), then Play to spin and/or drift it
+- Export **PNG** at 1× / 2× / 3×, or **copy CSS** (includes a keyframe when motion is playing)
 
 ## Run locally
 
@@ -27,4 +28,6 @@ Harmony generation picks a base hue, then places the other stops on standard col
 
 Grain is a tiled canvas noise pass (overlay / soft-light). Textures are tileable PNG scans generated once and composited with multiply, overlay, soft-light, or screen.
 
-PNG export re-renders the same stack at the chosen canvas size × resolution scale (capped at 8192px). CSS export copies the live gradient string plus comments for grain/texture settings.
+PNG export re-renders the same stack at the chosen canvas size × resolution (capped at 8192px). That file is always a still. CSS export copies the live gradient string, and if Play is on it also writes `@property` keyframes so the gradient can keep moving in the browser.
+
+The control panel is Dialkit-inspired (frosted folders, compact sliders, collapse tab) but implemented with shadcn/ui so the stop editor and texture library can stay custom. It sits on the left and starts open.

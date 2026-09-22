@@ -51,6 +51,16 @@ export type CanvasSettings = {
   height: number;
 };
 
+export type MotionMode = "spin" | "drift" | "both";
+
+export type MotionSettings = {
+  originX: number;
+  originY: number;
+  playing: boolean;
+  mode: MotionMode;
+  speed: number;
+};
+
 export type GeneratorState = {
   gradientType: GradientType;
   angle: number;
@@ -66,6 +76,7 @@ export type GeneratorState = {
   texture: TextureSettings;
   canvas: CanvasSettings;
   resolutionScale: number;
+  motion: MotionSettings;
 };
 
 export type StylePreset = {

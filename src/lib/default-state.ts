@@ -35,5 +35,12 @@ export function createInitialState(): GeneratorState {
     texture: { ...preset.texture },
     canvas: { preset: "16:9", width: 1920, height: 1080 },
     resolutionScale: 1,
+    motion: {
+      originX: 50,
+      originY: 50,
+      playing: false,
+      mode: "both",
+      speed: 0.8,
+    },
   };
 }
