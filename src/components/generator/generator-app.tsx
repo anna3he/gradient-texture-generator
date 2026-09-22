@@ -4,6 +4,7 @@ import { useCallback, useState } from "react";
 import { ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-react";
 import { ControlPanel } from "@/components/generator/control-panel";
 import { PreviewStage } from "@/components/generator/preview-stage";
+import { copyText } from "@/lib/clipboard";
 import { hexToHsl } from "@/lib/color";
 import { exportCssSnippet } from "@/lib/css-export";
 import { createInitialState } from "@/lib/default-state";
@@ -52,12 +53,7 @@ export function GeneratorApp() {
   }, []);
 
   const copyCss = useCallback(async () => {
-    try {
-      await navigator.clipboard.writeText(exportCssSnippet(state));
-      return true;
-    } catch {
-      return false;
-    }
+    return copyText(exportCssSnippet(state));
   }, [state]);
 
   const exportPng = useCallback(async () => {
