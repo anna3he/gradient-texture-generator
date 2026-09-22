@@ -68,8 +68,10 @@ describe("palette", () => {
     assert.ok(glow.position > 30 && glow.position < 60);
   });
 
-  it("keeps inspiration preset deeps saturated", () => {
-    for (const preset of STYLE_PRESETS) {
+  it("keeps studio preset deeps saturated", () => {
+    const studio = STYLE_PRESETS.filter((preset) => preset.collection === "studio");
+    assert.ok(studio.length >= 8);
+    for (const preset of studio) {
       assert.equal(preset.gradientType, "arc");
       const deep = hexToHsl(preset.palette.deep.color);
       const glow = hexToHsl(preset.palette.glow.color);
@@ -78,7 +80,19 @@ describe("palette", () => {
       assert.ok(deep.l < 50);
       assert.ok(glow.l >= 48);
     }
-    assert.equal(STYLE_PRESETS[0]?.palette.deep.color, "#1c2d9c");
-    assert.equal(STYLE_PRESETS[0]?.palette.glow.color, "#2ad4c0");
+    assert.equal(studio[0]?.palette.deep.color, "#1c2d9c");
+    assert.equal(studio[0]?.palette.glow.color, "#2ad4c0");
+  });
+
+  it("includes a Tokyo collection of vertical Japanese ramps", () => {
+    const tokyo = STYLE_PRESETS.filter((preset) => preset.collection === "tokyo");
+    assert.ok(tokyo.length >= 8);
+    for (const preset of tokyo) {
+      assert.equal(preset.gradientType, "linear");
+      assert.equal(preset.angle, 180);
+      assert.ok(washLightness(preset.palette) >= 80);
+    }
+    assert.ok(tokyo.some((preset) => preset.id === "sumi"));
+    assert.ok(tokyo.some((preset) => preset.id === "akane"));
   });
 });

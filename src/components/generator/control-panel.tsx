@@ -3,9 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import { ColorControl, Folder, SelectControl, Slider, Toggle } from "dialkit";
 import { Check, ClipboardCopy, Download, Shuffle } from "lucide-react";
+import { PresetGrid } from "@/components/generator/preset-grid";
 import { cssColorToHex } from "@/lib/color";
 import { panelConfig } from "@/lib/panel-config";
-import { CANVAS_PRESETS, STYLE_PRESETS } from "@/lib/presets";
+import { CANVAS_PRESETS } from "@/lib/presets";
 import { setPaletteColor } from "@/lib/palette";
 import type { CanvasPresetId, GeneratorState, GradientType, PaletteKey, StylePreset } from "@/lib/types";
 
@@ -74,20 +75,7 @@ export function ControlPanel({
           >
             <div className="min-h-0 flex-1 overflow-y-auto">
               <Folder title="Style" defaultOpen>
-                <SelectControl
-                  label="Preset"
-                  value={state.presetId}
-                  options={[
-                    ...panelConfig.style.preset.options,
-                    ...(state.presetId === "custom"
-                      ? [{ value: "custom", label: "Custom" }]
-                      : []),
-                  ]}
-                  onChange={(value) => {
-                    const preset = STYLE_PRESETS.find((item) => item.id === value);
-                    if (preset) onApplyPreset(preset);
-                  }}
-                />
+                <PresetGrid value={state.presetId} onApply={onApplyPreset} />
                 <SelectControl
                   label="Size"
                   value={state.canvas.preset}

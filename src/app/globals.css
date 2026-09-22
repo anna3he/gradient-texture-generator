@@ -209,3 +209,46 @@
   color: #d7f5e6;
   background: rgb(90 180 130 / 0.16);
 }
+
+.preset-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 2px 0 6px;
+}
+
+.preset-picker-label,
+.preset-group-label {
+  color: var(--dial-text-label);
+  font-size: 11px;
+  letter-spacing: 0.02em;
+}
+
+.preset-group-label {
+  margin: 0 0 6px;
+  color: var(--dial-text-tertiary);
+}
+
+.preset-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.preset-tile {
+  aspect-ratio: 3 / 5;
+  border: 1px solid rgb(255 255 255 / 0.08);
+  border-radius: 3px;
+  background-color: #f4f4f4;
+  background-size: cover;
+  cursor: pointer;
+  padding: 0;
+}
+
+.preset-tile:hover {
+  border-color: rgb(255 255 255 / 0.28);
+}
+
+.preset-tile[data-active="true"] {
+  box-shadow: 0 0 0 1px #fff;
+}
