@@ -162,6 +162,22 @@ export function mixHex(a: string, b: string, t: number) {
   });
 }
 
+export function mixHslHex(a: string, b: string, t: number) {
+  const colorA = hexToHsl(a);
+  const colorB = hexToHsl(b);
+  if (!colorA || !colorB) return mixHex(a, b, t);
+
+  let delta = colorB.h - colorA.h;
+  if (delta > 180) delta -= 360;
+  if (delta < -180) delta += 360;
+
+  return hslToHex({
+    h: wrapHue(colorA.h + delta * t),
+    s: lerp(colorA.s, colorB.s, t),
+    l: lerp(colorA.l, colorB.l, t),
+  });
+}
+
 export function createId() {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
     return crypto.randomUUID();

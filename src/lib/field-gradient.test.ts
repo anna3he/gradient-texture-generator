@@ -23,7 +23,8 @@ describe("field gradient", () => {
   it("blends the three colors instead of leaving a wash field", () => {
     const state = createInitialState();
     const samples = buildCurve(state.palette);
-    const glow = sampleArc(state.palette.glow.x / 100, state.palette.glow.y / 100, samples);
+    const wash = { r: 245, g: 248, b: 250 };
+    const glow = sampleArc(state.palette.glow.x / 100, state.palette.glow.y / 100, samples, wash);
     const glowRgb = samples[Math.floor(samples.length / 2)]?.rgb;
     assert.ok(glowRgb);
     const distance =

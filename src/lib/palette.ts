@@ -1,10 +1,10 @@
-import { clamp, createId, hexToHsl, hslToHex, mixHex, randomBetween, wrapHue } from "./color";
+import { clamp, createId, hexToHsl, hslToHex, mixHslHex, randomBetween, wrapHue } from "./color";
 import type { ColorPoint, ColorStop, GradientType, Palette, PaletteKey } from "./types";
 
 export const DEFAULT_POINTS = {
-  deep: { x: 22, y: 18 },
-  glow: { x: 46, y: 48 },
-  wash: { x: 78, y: 82 },
+  deep: { x: 18, y: 16 },
+  glow: { x: 38, y: 42 },
+  wash: { x: 76, y: 74 },
 } as const;
 
 export function colorPoint(color: string, x: number, y: number): ColorPoint {
@@ -12,6 +12,31 @@ export function colorPoint(color: string, x: number, y: number): ColorPoint {
     color,
     x: clamp(x, 4, 96),
     y: clamp(y, 4, 96),
+  };
+}
+
+export function deriveFamily(glow: string) {
+  const hsl = hexToHsl(glow);
+  if (!hsl) {
+    return { deep: glow, glow, wash: "#f7f8f8" };
+  }
+
+  return {
+    glow: hslToHex({
+      h: hsl.h,
+      s: clamp(Math.max(hsl.s, 62) + 10, 70, 96),
+      l: clamp(Math.max(hsl.l, 54) + 8, 58, 70),
+    }),
+    deep: hslToHex({
+      h: wrapHue(hsl.h - 4),
+      s: clamp(hsl.s * 0.72 + 14, 48, 78),
+      l: clamp(hsl.l * 0.36, 16, 28),
+    }),
+    wash: hslToHex({
+      h: hsl.h,
+      s: clamp(hsl.s * 0.06 + 3, 4, 11),
+      l: 97,
+    }),
   };
 }
 
@@ -26,52 +51,46 @@ export function paletteFromColors(
   };
 }
 
+export function paletteFromGlow(
+  glow: string,
+  points: Record<PaletteKey, { x: number; y: number }> = DEFAULT_POINTS
+): Palette {
+  return paletteFromColors(deriveFamily(glow), points);
+}
+
 export function paletteToStops(palette: Palette, type: GradientType = "linear"): ColorStop[] {
   if (type === "radial") {
-    const inner = mixHex(palette.wash.color, palette.glow.color, 0.42);
-    const outer = mixHex(palette.glow.color, palette.deep.color, 0.4);
+    const inner = mixHslHex(palette.wash.color, palette.glow.color, 0.38);
+    const outer = mixHslHex(palette.glow.color, palette.deep.color, 0.42);
     return [
       { id: createId(), color: palette.wash.color, position: 0 },
-      { id: createId(), color: inner, position: 26 },
-      { id: createId(), color: palette.glow.color, position: 46 },
-      { id: createId(), color: outer, position: 72 },
+      { id: createId(), color: palette.wash.color, position: 16 },
+      { id: createId(), color: inner, position: 34 },
+      { id: createId(), color: palette.glow.color, position: 52 },
+      { id: createId(), color: outer, position: 76 },
       { id: createId(), color: palette.deep.color, position: 100 },
     ];
   }
 
-  const mid = mixHex(palette.glow.color, palette.wash.color, 0.55);
-  const lift = mixHex(palette.deep.color, palette.glow.color, 0.5);
+  const lift = mixHslHex(palette.deep.color, palette.glow.color, 0.55);
+  const fade = mixHslHex(palette.glow.color, palette.wash.color, 0.48);
   return [
     { id: createId(), color: palette.deep.color, position: 0 },
-    { id: createId(), color: lift, position: 22 },
-    { id: createId(), color: palette.glow.color, position: 44 },
-    { id: createId(), color: mid, position: 72 },
+    { id: createId(), color: lift, position: 18 },
+    { id: createId(), color: palette.glow.color, position: 36 },
+    { id: createId(), color: fade, position: 52 },
+    { id: createId(), color: palette.wash.color, position: 64 },
     { id: createId(), color: palette.wash.color, position: 100 },
   ];
 }
 
 export function generatePalette(baseHue?: number, keep?: Palette): Palette {
   const hue = baseHue ?? randomBetween(0, 360);
-  const deepHue = wrapHue(hue + randomBetween(-8, 16));
-  const glowHue = wrapHue(hue + randomBetween(18, 52) * (Math.random() > 0.5 ? 1 : -1));
-
-  const colors = {
-    deep: hslToHex({
-      h: deepHue,
-      s: randomBetween(42, 74),
-      l: randomBetween(24, 40),
-    }),
-    glow: hslToHex({
-      h: glowHue,
-      s: randomBetween(48, 76),
-      l: randomBetween(44, 60),
-    }),
-    wash: hslToHex({
-      h: hue,
-      s: randomBetween(2, 9),
-      l: randomBetween(95, 98),
-    }),
-  };
+  const glow = hslToHex({
+    h: hue,
+    s: randomBetween(72, 94),
+    l: randomBetween(58, 68),
+  });
 
   const points = keep
     ? {
@@ -81,24 +100,20 @@ export function generatePalette(baseHue?: number, keep?: Palette): Palette {
       }
     : {
         deep: {
-          x: DEFAULT_POINTS.deep.x + randomBetween(-8, 8),
-          y: DEFAULT_POINTS.deep.y + randomBetween(-8, 8),
+          x: DEFAULT_POINTS.deep.x + randomBetween(-6, 6),
+          y: DEFAULT_POINTS.deep.y + randomBetween(-6, 6),
         },
         glow: {
-          x: DEFAULT_POINTS.glow.x + randomBetween(-10, 10),
-          y: DEFAULT_POINTS.glow.y + randomBetween(-10, 10),
+          x: DEFAULT_POINTS.glow.x + randomBetween(-8, 8),
+          y: DEFAULT_POINTS.glow.y + randomBetween(-8, 8),
         },
         wash: {
-          x: DEFAULT_POINTS.wash.x + randomBetween(-8, 8),
-          y: DEFAULT_POINTS.wash.y + randomBetween(-8, 8),
+          x: DEFAULT_POINTS.wash.x + randomBetween(-6, 6),
+          y: DEFAULT_POINTS.wash.y + randomBetween(-6, 6),
         },
       };
 
-  return {
-    deep: colorPoint(colors.deep, points.deep.x, points.deep.y),
-    glow: colorPoint(colors.glow, points.glow.x, points.glow.y),
-    wash: colorPoint(colors.wash, points.wash.x, points.wash.y),
-  };
+  return paletteFromGlow(glow, points);
 }
 
 export function sortStops(stops: ColorStop[]) {

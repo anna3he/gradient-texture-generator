@@ -23,7 +23,7 @@ export function GeneratorApp() {
 
   const shuffle = useCallback(() => {
     setState((current) => {
-      const currentHue = hexToHsl(current.palette.deep.color)?.h;
+      const currentHue = hexToHsl(current.palette.glow.color)?.h;
       return {
         ...current,
         presetId: "custom",
@@ -54,8 +54,9 @@ export function GeneratorApp() {
   const copyCss = useCallback(async () => {
     try {
       await navigator.clipboard.writeText(exportCssSnippet(state));
+      return true;
     } catch {
-      // Clipboard may be blocked; the button still completes.
+      return false;
     }
   }, [state]);
 

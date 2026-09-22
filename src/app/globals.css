@@ -198,3 +198,8 @@
   justify-content: center;
   gap: 8px;
 }
+
+.dialkit-button-group .dialkit-button[data-copied="true"] {
+  color: #d7f5e6;
+  background: rgb(90 180 130 / 0.16);
+}

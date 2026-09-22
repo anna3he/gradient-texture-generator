@@ -1,4 +1,4 @@
-import { paletteFromColors } from "./palette";
+import { paletteFromGlow } from "./palette";
 import type { CanvasPresetId, Palette, StylePreset } from "./types";
 
 export const CANVAS_PRESETS: Record<
@@ -13,11 +13,11 @@ export const CANVAS_PRESETS: Record<
   og: { width: 1200, height: 630, label: "OG · 1200×630" },
 };
 
-function presetPalette(
-  colors: { deep: string; glow: string; wash: string },
+function presetFromGlow(
+  glow: string,
   points: { deep: { x: number; y: number }; glow: { x: number; y: number }; wash: { x: number; y: number } }
 ): Palette {
-  return paletteFromColors(colors, points);
+  return paletteFromGlow(glow, points);
 }
 
 export const STYLE_PRESETS: StylePreset[] = [
@@ -27,10 +27,11 @@ export const STYLE_PRESETS: StylePreset[] = [
     gradientType: "arc",
     angle: 180,
     grain: { enabled: true, opacity: 12 },
-    palette: presetPalette(
-      { deep: "#1c2d9c", glow: "#1e6e68", wash: "#f5f8fa" },
-      { deep: { x: 20, y: 16 }, glow: { x: 44, y: 50 }, wash: { x: 80, y: 84 } }
-    ),
+    palette: presetFromGlow("#2fe0c8", {
+      deep: { x: 16, y: 14 },
+      glow: { x: 36, y: 44 },
+      wash: { x: 78, y: 76 },
+    }),
   },
   {
     id: "sunrise",
@@ -38,10 +39,11 @@ export const STYLE_PRESETS: StylePreset[] = [
     gradientType: "arc",
     angle: 180,
     grain: { enabled: true, opacity: 10 },
-    palette: presetPalette(
-      { deep: "#c47a52", glow: "#f0b27a", wash: "#fff8f1" },
-      { deep: { x: 18, y: 70 }, glow: { x: 52, y: 36 }, wash: { x: 84, y: 18 } }
-    ),
+    palette: presetFromGlow("#ffb35a", {
+      deep: { x: 16, y: 72 },
+      glow: { x: 40, y: 38 },
+      wash: { x: 80, y: 20 },
+    }),
   },
   {
     id: "dawn",
@@ -49,10 +51,11 @@ export const STYLE_PRESETS: StylePreset[] = [
     gradientType: "arc",
     angle: 172,
     grain: { enabled: true, opacity: 10 },
-    palette: presetPalette(
-      { deep: "#8a6b8c", glow: "#e8b4b8", wash: "#fff6f4" },
-      { deep: { x: 16, y: 28 }, glow: { x: 48, y: 58 }, wash: { x: 82, y: 78 } }
-    ),
+    palette: presetFromGlow("#ff8fa6", {
+      deep: { x: 15, y: 24 },
+      glow: { x: 38, y: 52 },
+      wash: { x: 80, y: 78 },
+    }),
   },
   {
     id: "dusk",
@@ -60,10 +63,11 @@ export const STYLE_PRESETS: StylePreset[] = [
     gradientType: "arc",
     angle: 186,
     grain: { enabled: true, opacity: 14 },
-    palette: presetPalette(
-      { deep: "#3d3a6b", glow: "#c9898b", wash: "#f7f3f0" },
-      { deep: { x: 24, y: 14 }, glow: { x: 62, y: 42 }, wash: { x: 76, y: 86 } }
-    ),
+    palette: presetFromGlow("#e889b0", {
+      deep: { x: 18, y: 14 },
+      glow: { x: 42, y: 40 },
+      wash: { x: 78, y: 80 },
+    }),
   },
   {
     id: "ember",
@@ -71,10 +75,11 @@ export const STYLE_PRESETS: StylePreset[] = [
     gradientType: "arc",
     angle: 168,
     grain: { enabled: true, opacity: 14 },
-    palette: presetPalette(
-      { deep: "#6b2e22", glow: "#e07a3d", wash: "#fbf4ec" },
-      { deep: { x: 14, y: 22 }, glow: { x: 40, y: 54 }, wash: { x: 86, y: 80 } }
-    ),
+    palette: presetFromGlow("#ff7a38", {
+      deep: { x: 14, y: 18 },
+      glow: { x: 34, y: 48 },
+      wash: { x: 82, y: 78 },
+    }),
   },
   {
     id: "mist",
@@ -82,10 +87,11 @@ export const STYLE_PRESETS: StylePreset[] = [
     gradientType: "arc",
     angle: 180,
     grain: { enabled: true, opacity: 16 },
-    palette: presetPalette(
-      { deep: "#5a6e78", glow: "#a8c4c8", wash: "#f7fafb" },
-      { deep: { x: 28, y: 20 }, glow: { x: 50, y: 46 }, wash: { x: 74, y: 82 } }
-    ),
+    palette: presetFromGlow("#6ed8e8", {
+      deep: { x: 20, y: 16 },
+      glow: { x: 40, y: 42 },
+      wash: { x: 76, y: 78 },
+    }),
   },
   {
     id: "sage",
@@ -93,10 +99,11 @@ export const STYLE_PRESETS: StylePreset[] = [
     gradientType: "arc",
     angle: 180,
     grain: { enabled: true, opacity: 12 },
-    palette: presetPalette(
-      { deep: "#4a5c4e", glow: "#9bb09a", wash: "#f5f7f2" },
-      { deep: { x: 32, y: 78 }, glow: { x: 58, y: 40 }, wash: { x: 78, y: 16 } }
-    ),
+    palette: presetFromGlow("#7edc96", {
+      deep: { x: 22, y: 80 },
+      glow: { x: 42, y: 40 },
+      wash: { x: 78, y: 18 },
+    }),
   },
   {
     id: "linen",
@@ -104,9 +111,10 @@ export const STYLE_PRESETS: StylePreset[] = [
     gradientType: "arc",
     angle: 160,
     grain: { enabled: true, opacity: 8 },
-    palette: presetPalette(
-      { deep: "#a89078", glow: "#d4c4a8", wash: "#fbf8f2" },
-      { deep: { x: 22, y: 62 }, glow: { x: 46, y: 34 }, wash: { x: 80, y: 22 } }
-    ),
+    palette: presetFromGlow("#efc06a", {
+      deep: { x: 18, y: 64 },
+      glow: { x: 38, y: 34 },
+      wash: { x: 80, y: 22 },
+    }),
   },
 ];

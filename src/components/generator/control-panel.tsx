@@ -1,7 +1,8 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { ColorControl, Folder, SelectControl, Slider, Toggle } from "dialkit";
-import { ClipboardCopy, Download, Shuffle } from "lucide-react";
+import { Check, ClipboardCopy, Download, Shuffle } from "lucide-react";
 import { cssColorToHex } from "@/lib/color";
 import { panelConfig } from "@/lib/panel-config";
 import { CANVAS_PRESETS, STYLE_PRESETS } from "@/lib/presets";
@@ -22,9 +23,26 @@ export function ControlPanel({
   onShuffle: () => void;
   onApplyPreset: (preset: StylePreset) => void;
   onExportPng: () => void;
-  onCopyCss: () => void;
+  onCopyCss: () => Promise<boolean>;
   onClose?: () => void;
 }) {
+  const [copied, setCopied] = useState(false);
+  const copiedTimer = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (copiedTimer.current) window.clearTimeout(copiedTimer.current);
+    };
+  }, []);
+
+  async function handleCopyCss() {
+    const ok = await onCopyCss();
+    if (!ok) return;
+    setCopied(true);
+    if (copiedTimer.current) window.clearTimeout(copiedTimer.current);
+    copiedTimer.current = window.setTimeout(() => setCopied(false), 1600);
+  }
+
   function setColor(key: PaletteKey, color: string) {
     onChange({
       presetId: "custom",
@@ -168,9 +186,14 @@ export function ControlPanel({
                 <Shuffle className="size-3.5" />
                 Shuffle
               </button>
-              <button type="button" className="dialkit-button" onClick={onCopyCss}>
-                <ClipboardCopy className="size-3.5" />
-                Copy CSS
+              <button
+                type="button"
+                className="dialkit-button"
+                data-copied={copied ? "true" : undefined}
+                onClick={() => void handleCopyCss()}
+              >
+                {copied ? <Check className="size-3.5" /> : <ClipboardCopy className="size-3.5" />}
+                {copied ? "Copied" : "Copy CSS"}
               </button>
               <button type="button" className="dialkit-button" onClick={onExportPng}>
                 <Download className="size-3.5" />
