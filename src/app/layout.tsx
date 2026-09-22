@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import "dialkit/styles.css";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -16,7 +17,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Vellum — Gradient & Texture Generator",
   description:
-    "Generate color-theory gradients with grain and paper textures, then export PNG or CSS.",
+    "Generate color-theory gradients with optional grain, then export PNG or CSS.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

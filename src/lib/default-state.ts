@@ -2,10 +2,10 @@ import { generateStops } from "./harmony";
 import { STYLE_PRESETS } from "./presets";
 import type { GeneratorState } from "./types";
 
-const dusk = STYLE_PRESETS[0];
+const mist = STYLE_PRESETS[0];
 
 export function createInitialState(): GeneratorState {
-  const preset = dusk ?? STYLE_PRESETS[0];
+  const preset = mist ?? STYLE_PRESETS[0];
   if (!preset) {
     throw new Error("No style presets defined.");
   }
@@ -22,7 +22,7 @@ export function createInitialState(): GeneratorState {
       satMax: preset.satMax,
       lightMin: preset.lightMin,
       lightMax: preset.lightMax,
-      positions: [0, 34, 68, 100],
+      positions: [0, 32, 66, 100],
     }),
     harmony: preset.harmony,
     lockHue: preset.lockHue,
@@ -32,9 +32,7 @@ export function createInitialState(): GeneratorState {
     lightMin: preset.lightMin,
     lightMax: preset.lightMax,
     grain: { ...preset.grain, seed: 1204 },
-    texture: { ...preset.texture },
     canvas: { preset: "16:9", width: 1920, height: 1080 },
-    resolutionScale: 1,
     motion: {
       originX: 50,
       originY: 50,

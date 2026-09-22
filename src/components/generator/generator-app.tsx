@@ -2,7 +2,6 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { ControlPanel } from "@/components/generator/control-panel";
 import { PreviewStage } from "@/components/generator/preview-stage";
 import { exportCssSnippet } from "@/lib/css-export";
@@ -58,10 +57,9 @@ export function GeneratorApp() {
       lightMin: preset.lightMin,
       lightMax: preset.lightMax,
       grain: { ...preset.grain, seed: Math.floor(Math.random() * 1_000_000) },
-      texture: { ...preset.texture },
       stops: generateStops({
         harmony: preset.harmony,
-        stopCount: Math.max(3, current.stops.length),
+        stopCount: Math.max(4, current.stops.length),
         lockHue: preset.lockHue,
         baseHue: preset.baseHue,
         satMin: preset.satMin,
@@ -100,7 +98,7 @@ export function GeneratorApp() {
       link.click();
       link.remove();
       URL.revokeObjectURL(url);
-      setStatus("Downloaded PNG still.");
+      setStatus("Downloaded 2× PNG.");
     } catch (error) {
       setStatus(error instanceof Error ? error.message : "Could not export PNG.");
     }
@@ -132,15 +130,29 @@ export function GeneratorApp() {
 
   return (
     <div className="flex h-dvh min-h-0 bg-[#0b0b0d] text-white">
-      <div className="relative hidden h-full md:flex">
-        <div
-          className={cn(
-            "h-full overflow-hidden transition-[width] duration-300 ease-out",
-            desktopPanelOpen ? "w-[332px] lg:w-[352px]" : "w-0"
-          )}
-        >
-          <div className="h-full w-[332px] p-3 pr-1.5 lg:w-[352px]">{panel}</div>
+      <main className="relative flex min-w-0 flex-1 flex-col">
+        <div className="flex items-center justify-between px-4 py-3 md:hidden">
+          <div>
+            <p className="text-sm font-medium">Vellum</p>
+            <p className="text-[11px] text-white/45">Gradient studio</p>
+          </div>
+          <button
+            type="button"
+            className="dialkit-action-button"
+            onClick={() => setMobilePanelOpen(true)}
+          >
+            <SlidersHorizontal className="mr-1 inline size-3.5" />
+            Controls
+          </button>
         </div>
+        <PreviewStage
+          state={state}
+          onError={setPreviewError}
+          onMoveOrigin={moveOrigin}
+        />
+      </main>
+
+      <div className="relative hidden h-full md:flex">
         <button
           type="button"
           className="dial-tab my-auto flex h-20 w-5 shrink-0 items-center justify-center"
@@ -149,30 +161,20 @@ export function GeneratorApp() {
           aria-label={desktopPanelOpen ? "Close controls" : "Open controls"}
         >
           {desktopPanelOpen ? (
-            <ChevronLeft className="size-3.5 text-white/70" />
-          ) : (
             <ChevronRight className="size-3.5 text-white/70" />
+          ) : (
+            <ChevronLeft className="size-3.5 text-white/70" />
           )}
         </button>
-      </div>
-
-      <main className="relative flex min-w-0 flex-1 flex-col">
-        <div className="flex items-center justify-between px-4 py-3 md:hidden">
-          <div>
-            <p className="text-sm font-medium">Vellum</p>
-            <p className="text-[11px] text-white/45">Gradient & texture studio</p>
-          </div>
-          <Button size="sm" variant="secondary" onClick={() => setMobilePanelOpen(true)}>
-            <SlidersHorizontal data-icon="inline-start" />
-            Controls
-          </Button>
+        <div
+          className={cn(
+            "h-full overflow-hidden transition-[width] duration-300 ease-out",
+            desktopPanelOpen ? "w-[332px] lg:w-[352px]" : "w-0"
+          )}
+        >
+          <div className="h-full w-[332px] py-3 pr-3 pl-1.5 lg:w-[352px]">{panel}</div>
         </div>
-        <PreviewStage
-          state={state}
-          onError={setPreviewError}
-          onMoveOrigin={moveOrigin}
-        />
-      </main>
+      </div>
 
       {mobilePanelOpen ? (
         <div className="fixed inset-0 z-40 md:hidden">
@@ -182,7 +184,7 @@ export function GeneratorApp() {
             aria-label="Dismiss controls"
             onClick={() => setMobilePanelOpen(false)}
           />
-          <div className="absolute inset-y-0 left-0 w-[min(100%,340px)] p-3">
+          <div className="absolute inset-y-0 right-0 w-[min(100%,340px)] p-3">
             <ControlPanel
               state={state}
               onChange={patch}

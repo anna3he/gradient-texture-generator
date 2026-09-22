@@ -7,15 +7,6 @@ export type Harmony =
 
 export type GradientType = "linear" | "radial" | "conic";
 
-export type BlendMode = "multiply" | "overlay" | "soft-light" | "screen";
-
-export type TextureId =
-  | "none"
-  | "tracing-paper"
-  | "canvas-weave"
-  | "film-grain"
-  | "vellum";
-
 export type ColorStop = {
   id: string;
   color: string;
@@ -23,17 +14,9 @@ export type ColorStop = {
 };
 
 export type GrainSettings = {
-  intensity: number;
+  enabled: boolean;
   opacity: number;
-  size: number;
-  colored: boolean;
   seed: number;
-};
-
-export type TextureSettings = {
-  id: TextureId;
-  opacity: number;
-  blend: BlendMode;
 };
 
 export type CanvasPresetId =
@@ -73,9 +56,7 @@ export type GeneratorState = {
   lightMin: number;
   lightMax: number;
   grain: GrainSettings;
-  texture: TextureSettings;
   canvas: CanvasSettings;
-  resolutionScale: number;
   motion: MotionSettings;
 };
 
@@ -92,6 +73,5 @@ export type StylePreset = {
   lightMin: number;
   lightMax: number;
   grain: Omit<GrainSettings, "seed">;
-  texture: TextureSettings;
   swatches: string[];
 };

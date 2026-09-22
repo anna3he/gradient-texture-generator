@@ -128,6 +128,22 @@ export function normalizeHex(hex: string, options?: { short?: boolean }) {
   return rgb ? rgbToHex(rgb) : null;
 }
 
+export function cssColorToHex(color: string) {
+  const hex = normalizeHex(color);
+  if (hex) return hex;
+  if (typeof document === "undefined") return "#888888";
+
+  const canvas = document.createElement("canvas");
+  canvas.width = 1;
+  canvas.height = 1;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return "#888888";
+  ctx.fillStyle = color;
+  ctx.fillRect(0, 0, 1, 1);
+  const pixel = ctx.getImageData(0, 0, 1, 1).data;
+  return rgbToHex({ r: pixel[0] ?? 0, g: pixel[1] ?? 0, b: pixel[2] ?? 0 });
+}
+
 export function draftHex(value: string) {
   const trimmed = value.trim();
   const withHash = trimmed.startsWith("#") ? trimmed : `#${trimmed}`;

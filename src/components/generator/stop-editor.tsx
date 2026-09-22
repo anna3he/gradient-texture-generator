@@ -1,13 +1,10 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Minus, Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { createId, draftHex, normalizeHex } from "@/lib/color";
+import { ColorControl } from "dialkit";
+import { createId, cssColorToHex } from "@/lib/color";
 import { sampleGradientColor, sortStops } from "@/lib/harmony";
 import type { ColorStop } from "@/lib/types";
-import { cn } from "@/lib/utils";
 
 export function StopEditor({
   stops,
@@ -19,14 +16,7 @@ export function StopEditor({
   const trackRef = useRef<HTMLDivElement>(null);
   const [selectedId, setSelectedId] = useState(stops[0]?.id ?? "");
   const [dragId, setDragId] = useState<string | null>(null);
-  const [hexDraft, setHexDraft] = useState<{ id: string; value: string } | null>(
-    null
-  );
   const selected = stops.find((stop) => stop.id === selectedId) ?? stops[0];
-  const hexValue =
-    hexDraft && selected && hexDraft.id === selected.id
-      ? hexDraft.value
-      : (selected?.color ?? "");
 
   function positionFromEvent(event: { clientX: number }) {
     const track = trackRef.current;
@@ -54,8 +44,7 @@ export function StopEditor({
       color: sampleGradientColor(stops, position),
       position,
     };
-    const merged = sortStops([...stops, next]);
-    onChange(merged);
+    onChange(sortStops([...stops, next]));
     setSelectedId(next.id);
   }
 
@@ -67,10 +56,10 @@ export function StopEditor({
   }
 
   return (
-    <div className="grid gap-3">
+    <div className="grid gap-2">
       <div
         ref={trackRef}
-        className="relative h-8 cursor-crosshair rounded-lg ring-1 ring-white/10"
+        className="relative h-7 cursor-crosshair rounded-[var(--dial-radius)]"
         style={{
           background: `linear-gradient(90deg, ${sortStops(stops)
             .map((stop) => `${stop.color} ${stop.position}%`)
@@ -95,13 +84,15 @@ export function StopEditor({
             type="button"
             data-stop="true"
             aria-label={`Stop ${stop.color} at ${Math.round(stop.position)}%`}
-            className={cn(
-              "absolute top-1/2 size-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 shadow-[0_0_0_1px_rgba(0,0,0,0.35)]",
-              selected?.id === stop.id
-                ? "z-10 border-white"
-                : "border-white/70 hover:border-white"
-            )}
-            style={{ left: `${stop.position}%`, backgroundColor: stop.color }}
+            className="absolute top-1/2 size-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white/80"
+            style={{
+              left: `${stop.position}%`,
+              backgroundColor: stop.color,
+              boxShadow:
+                selected?.id === stop.id
+                  ? "0 0 0 2px var(--dial-focus-ring)"
+                  : "0 0 0 1px rgba(0,0,0,0.35)",
+            }}
             onPointerDown={(event) => {
               event.preventDefault();
               event.stopPropagation();
@@ -117,66 +108,30 @@ export function StopEditor({
           />
         ))}
       </div>
-
-      <div className="flex items-center gap-2">
-        <label className="relative size-8 shrink-0 overflow-hidden rounded-md ring-1 ring-white/15">
-          <input
-            type="color"
-            className="absolute inset-0 size-[150%] -translate-x-1/8 -translate-y-1/8 cursor-pointer"
-            value={
-              normalizeHex(selected?.color ?? "#888888", { short: false }) ??
-              "#888888"
-            }
-            onChange={(event) => {
-              if (!selected) return;
-              const color = event.target.value;
-              setHexDraft(null);
-              updateStop(selected.id, { color });
-            }}
-          />
-        </label>
-        <Input
-          value={hexValue}
-          spellCheck={false}
-          className="h-8 font-mono text-[12px] uppercase"
-          onChange={(event) => {
-            if (!selected) return;
-            const next = draftHex(event.target.value);
-            setHexDraft({ id: selected.id, value: next });
-            const complete = normalizeHex(next, { short: false });
-            if (complete) updateStop(selected.id, { color: complete });
-          }}
-          onBlur={() => {
-            if (!selected) return;
-            const complete = normalizeHex(hexValue);
-            if (complete) {
-              updateStop(selected.id, { color: complete });
-            }
-            setHexDraft(null);
-          }}
+      {selected ? (
+        <ColorControl
+          label="Stop color"
+          value={selected.color}
+          onChange={(color) => updateStop(selected.id, { color: cssColorToHex(color) })}
         />
-        <div className="ml-auto flex items-center gap-1">
-          <Button
-            type="button"
-            size="icon-sm"
-            variant="ghost"
-            disabled={stops.length <= 2}
-            onClick={removeSelected}
-            aria-label="Remove stop"
-          >
-            <Minus />
-          </Button>
-          <Button
-            type="button"
-            size="icon-sm"
-            variant="ghost"
-            disabled={stops.length >= 8}
-            onClick={addStop}
-            aria-label="Add stop"
-          >
-            <Plus />
-          </Button>
-        </div>
+      ) : null}
+      <div className="dialkit-actions-group">
+        <button
+          type="button"
+          className="dialkit-action-button"
+          disabled={stops.length <= 2}
+          onClick={removeSelected}
+        >
+          Remove stop
+        </button>
+        <button
+          type="button"
+          className="dialkit-action-button"
+          disabled={stops.length >= 8}
+          onClick={addStop}
+        >
+          Add stop
+        </button>
       </div>
     </div>
   );

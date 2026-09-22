@@ -1,9 +1,9 @@
+import { EXPORT_SCALE } from "./panel-config";
 import type { GeneratorState } from "./types";
 
 export function exportPixelSize(state: GeneratorState) {
-  const scale = state.resolutionScale;
   return {
-    width: Math.min(8192, Math.round(state.canvas.width * scale)),
-    height: Math.min(8192, Math.round(state.canvas.height * scale)),
+    width: Math.min(8192, Math.round(state.canvas.width * EXPORT_SCALE)),
+    height: Math.min(8192, Math.round(state.canvas.height * EXPORT_SCALE)),
   };
 }

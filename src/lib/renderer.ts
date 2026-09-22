@@ -1,10 +1,9 @@
 import { clamp, hexToRgb } from "./color";
 import { sortStops } from "./harmony";
-import { TEXTURE_BY_ID } from "./textures";
-import type { BlendMode, GeneratorState } from "./types";
+import { EXPORT_SCALE, GRAIN_DEFAULTS } from "./panel-config";
+import type { GeneratorState } from "./types";
 
 const grainTileCache = new Map<string, HTMLCanvasElement>();
-const textureImageCache = new Map<string, HTMLImageElement | Promise<HTMLImageElement>>();
 
 function cssAngleToRadians(angle: number) {
   return ((angle - 90) * Math.PI) / 180;
@@ -61,11 +60,11 @@ function mulberry32(seed: number) {
 }
 
 function getGrainTile(state: GeneratorState) {
-  const size = clamp(state.grain.size, 0.6, 6);
+  const size = GRAIN_DEFAULTS.size;
   const key = [
     state.grain.seed,
-    state.grain.colored ? "c" : "m",
-    state.grain.intensity.toFixed(1),
+    GRAIN_DEFAULTS.colored ? "c" : "m",
+    GRAIN_DEFAULTS.intensity.toFixed(1),
     size.toFixed(2),
   ].join(":");
 
@@ -82,15 +81,15 @@ function getGrainTile(state: GeneratorState) {
 
   const image = ctx.createImageData(sourceSize, sourceSize);
   const random = mulberry32(state.grain.seed || 1);
-  const amplitude = (clamp(state.grain.intensity, 0, 100) / 100) * 126;
+  const amplitude = (GRAIN_DEFAULTS.intensity / 100) * 126;
   const data = image.data;
 
   for (let y = 0; y < sourceSize; y += cell) {
     for (let x = 0; x < sourceSize; x += cell) {
       const mono = 128 + (random() * 2 - 1) * amplitude;
-      const r = state.grain.colored ? 128 + (random() * 2 - 1) * amplitude : mono;
-      const g = state.grain.colored ? 128 + (random() * 2 - 1) * amplitude : mono;
-      const b = state.grain.colored ? 128 + (random() * 2 - 1) * amplitude : mono;
+      const r = GRAIN_DEFAULTS.colored ? 128 + (random() * 2 - 1) * amplitude : mono;
+      const g = GRAIN_DEFAULTS.colored ? 128 + (random() * 2 - 1) * amplitude : mono;
+      const b = GRAIN_DEFAULTS.colored ? 128 + (random() * 2 - 1) * amplitude : mono;
 
       for (let dy = 0; dy < cell; dy += 1) {
         for (let dx = 0; dx < cell; dx += 1) {
@@ -130,35 +129,6 @@ function drawTiled(
   }
 }
 
-function loadTexture(src: string) {
-  const cached = textureImageCache.get(src);
-  if (cached) return cached;
-
-  const promise = new Promise<HTMLImageElement>((resolve, reject) => {
-    const image = new Image();
-    image.decoding = "async";
-    image.onload = () => {
-      textureImageCache.set(src, image);
-      resolve(image);
-    };
-    image.onerror = () => {
-      textureImageCache.delete(src);
-      reject(new Error(`Could not load texture ${src}`));
-    };
-    image.src = src;
-  });
-
-  textureImageCache.set(src, promise);
-  return promise;
-}
-
-const BLEND_MAP: Record<BlendMode, GlobalCompositeOperation> = {
-  multiply: "multiply",
-  overlay: "overlay",
-  "soft-light": "soft-light",
-  screen: "screen",
-};
-
 export async function renderGradient(
   canvas: HTMLCanvasElement,
   state: GeneratorState,
@@ -177,33 +147,14 @@ export async function renderGradient(
   ctx.clearRect(0, 0, width, height);
   fillGradient(ctx, state, width, height);
 
-  const grainAlpha =
-    (clamp(state.grain.opacity, 0, 100) / 100) *
-    (clamp(state.grain.intensity, 0, 100) / 100 > 0 ? 1 : 0);
-
-  if (grainAlpha > 0 && state.grain.intensity > 0) {
+  if (state.grain.enabled && state.grain.opacity > 0) {
     const tile = getGrainTile(state);
     ctx.save();
     ctx.globalAlpha = clamp(state.grain.opacity / 100, 0, 1);
-    ctx.globalCompositeOperation = state.grain.colored ? "overlay" : "soft-light";
-    const tileScale = Math.max(96, 220 * clamp(state.grain.size, 0.6, 6));
+    ctx.globalCompositeOperation = "soft-light";
+    const tileScale = Math.max(96, 220 * GRAIN_DEFAULTS.size);
     drawTiled(ctx, tile, width, height, tileScale);
     ctx.restore();
-  }
-
-  if (state.texture.id !== "none" && state.texture.opacity > 0) {
-    const asset = TEXTURE_BY_ID[state.texture.id];
-    try {
-      const image = await loadTexture(asset.src);
-      ctx.save();
-      ctx.globalAlpha = clamp(state.texture.opacity / 100, 0, 1);
-      ctx.globalCompositeOperation = BLEND_MAP[state.texture.blend];
-      const tileSize = Math.max(image.width, 256);
-      drawTiled(ctx, image, width, height, tileSize);
-      ctx.restore();
-    } catch {
-      // Preview still works if a texture file failed to load.
-    }
   }
 }
 
@@ -221,9 +172,8 @@ export function previewSize(
 }
 
 export async function exportPngBlob(state: GeneratorState) {
-  const scale = clamp(state.resolutionScale, 0.5, 4);
-  const width = Math.min(8192, Math.round(state.canvas.width * scale));
-  const height = Math.min(8192, Math.round(state.canvas.height * scale));
+  const width = Math.min(8192, Math.round(state.canvas.width * EXPORT_SCALE));
+  const height = Math.min(8192, Math.round(state.canvas.height * EXPORT_SCALE));
   const canvas = document.createElement("canvas");
   await renderGradient(canvas, state, { width, height });
 

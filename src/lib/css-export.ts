@@ -2,7 +2,6 @@ import type { GeneratorState } from "./types";
 import { exportPixelSize } from "./export-size";
 import { sortStops } from "./harmony";
 import { motionDurationSec } from "./motion";
-import { TEXTURE_BY_ID } from "./textures";
 
 export { exportPixelSize };
 
@@ -36,8 +35,6 @@ export function gradientCss(state: GeneratorState, animated = false) {
 }
 
 export function exportCssSnippet(state: GeneratorState) {
-  const texture =
-    state.texture.id !== "none" ? TEXTURE_BY_ID[state.texture.id] : null;
   const animate =
     state.motion.playing ||
     state.motion.originX !== 50 ||
@@ -86,16 +83,8 @@ export function exportCssSnippet(state: GeneratorState) {
     );
   }
 
-  if (texture && state.texture.opacity > 0) {
-    lines.push(
-      `  /* Texture: ${texture.name} @ ${round(state.texture.opacity)}% ${state.texture.blend} */`
-    );
-  }
-
-  if (state.grain.opacity > 0 && state.grain.intensity > 0) {
-    lines.push(
-      `  /* Grain: intensity ${round(state.grain.intensity)}, size ${round(state.grain.size)}, ${state.grain.colored ? "colored" : "mono"} */`
-    );
+  if (state.grain.enabled && state.grain.opacity > 0) {
+    lines.push(`  /* Grain @ ${round(state.grain.opacity)}% */`);
   }
 
   lines.push(`}`);

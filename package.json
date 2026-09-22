@@ -7,14 +7,15 @@
     "build": "next build",
     "start": "next start --port 43217 --hostname 127.0.0.1",
     "lint": "eslint",
-    "textures": "node scripts/generate-textures.mjs",
     "test": "npx --yes tsx --test src/lib/*.test.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",
     "class-variance-authority": "^0.7.1",
     "cn": "^0.3.2",
+    "dialkit": "^2.0.2",
     "lucide-react": "^1.47.0",
+    "motion": "^13.4.0",
     "next": "16.3.5",
     "react": "19.2.8",
     "react-dom": "19.2.8",
@@ -28,7 +29,6 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.3.5",
-    "pngjs": "^7.0.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

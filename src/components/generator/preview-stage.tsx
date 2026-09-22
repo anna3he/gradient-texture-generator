@@ -147,9 +147,7 @@ export function PreviewStage({
       <div className="relative flex items-center justify-between px-4 pb-3 text-[11px] tracking-wide text-white/40 md:px-6">
         <span>
           {state.canvas.width} × {state.canvas.height}
-          {state.resolutionScale !== 1
-            ? ` · export ${exportSize.width} × ${exportSize.height}`
-            : ""}
+          {` · 2× ${exportSize.width} × ${exportSize.height}`}
           {state.motion.playing ? " · live" : ""}
         </span>
         <span className="capitalize">{state.harmony.replace("-", " ")}</span>
