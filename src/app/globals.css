@@ -184,6 +184,35 @@
   padding-bottom: 2px;
 }
 
+.dialkit-root[data-mode="inline"] .dialkit-folder-root > .dialkit-panel-header > .dialkit-panel-toolbar {
+  position: absolute;
+  top: 6px;
+  right: 0;
+  z-index: 4;
+  height: 28px;
+  margin: 0;
+  overflow: visible;
+}
+
+.dial-panel-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 8px;
+  color: rgb(255 255 255 / 0.72);
+  background: transparent;
+}
+
+.dial-panel-close:hover,
+.dial-panel-close:focus-visible {
+  color: #fff;
+  background: rgb(255 255 255 / 0.08);
+  outline: none;
+}
+
 .dial-tab {
   border-radius: 10px 0 0 10px;
   background: rgb(22 22 26 / 0.78);

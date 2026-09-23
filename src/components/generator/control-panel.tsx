@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ColorControl, Folder, SelectControl, Slider, Toggle } from "dialkit";
-import { Check, ClipboardCopy, Download, Shuffle } from "lucide-react";
+import { Check, ClipboardCopy, Download, Shuffle, X } from "lucide-react";
 import { cssColorToHex } from "@/lib/color";
 import { panelConfig } from "@/lib/panel-config";
 import { CANVAS_PRESETS, STYLE_PRESETS } from "@/lib/presets";
@@ -63,11 +63,11 @@ export function ControlPanel({
               onClose ? (
                 <button
                   type="button"
-                  className="dialkit-action-button"
+                  className="dial-panel-close"
                   onClick={onClose}
                   aria-label="Close controls"
                 >
-                  Close
+                  <X className="size-4" strokeWidth={1.75} />
                 </button>
               ) : undefined
             }

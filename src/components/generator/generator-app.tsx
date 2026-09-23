@@ -80,10 +80,7 @@ export function GeneratorApp() {
     <div className="flex h-dvh min-h-0 bg-[#0b0b0d] text-white">
       <main className="relative flex min-w-0 flex-1 flex-col">
         <div className="flex items-center justify-between px-4 py-3 md:hidden">
-          <div>
-            <p className="text-sm font-medium">Vellum</p>
-            <p className="text-[11px] text-white/45">Gradient studio</p>
-          </div>
+          <p className="text-sm font-medium">Gradient Studio</p>
           <button
             type="button"
             className="dialkit-action-button"

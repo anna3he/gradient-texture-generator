@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Vellum — Gradient & Texture Generator",
+  title: "Gradient Studio",
   description:
     "Generate color-theory gradients with optional grain, then export PNG or CSS.",
 };
