@@ -12,7 +12,8 @@ import {
   shufflePalette,
   washLightness,
 } from "./palette";
-import { STYLE_PRESETS } from "./presets";
+import { createInitialState } from "./default-state";
+import { DEFAULT_GRAIN_OPACITY, STYLE_PRESETS } from "./presets";
 
 describe("palette", () => {
   it("keeps wash near white", () => {
@@ -92,7 +93,8 @@ describe("palette", () => {
     assert.equal(STYLE_PRESETS[0]?.palette.deep.color, "#1c2d9c");
     assert.equal(STYLE_PRESETS[0]?.palette.glow.color, "#2ad4c0");
     assert.ok(!STYLE_PRESETS.some((preset) => preset.id === "sumi"));
-    assert.ok(STYLE_PRESETS.every((preset) => preset.grain.opacity === 30));
+    assert.ok(STYLE_PRESETS.every((preset) => preset.grain.opacity === DEFAULT_GRAIN_OPACITY));
+    assert.equal(createInitialState().grain.opacity, DEFAULT_GRAIN_OPACITY);
   });
 
   it("shuffles to a distinctly different hue family", () => {

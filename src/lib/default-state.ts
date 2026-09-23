@@ -1,4 +1,4 @@
-import { STYLE_PRESETS } from "./presets";
+import { DEFAULT_GRAIN_OPACITY, STYLE_PRESETS } from "./presets";
 import type { GeneratorState } from "./types";
 
 export function createInitialState(): GeneratorState {
@@ -16,7 +16,7 @@ export function createInitialState(): GeneratorState {
     },
     gradientType: preset.gradientType,
     angle: preset.angle,
-    grain: { ...preset.grain, seed: 1204 },
+    grain: { ...preset.grain, opacity: DEFAULT_GRAIN_OPACITY, seed: 1204 },
     canvas: { preset: "16:9", width: 1920, height: 1080 },
     motion: {
       playing: false,

@@ -1,5 +1,5 @@
 import type { DialConfig, ResolvedValues } from "dialkit";
-import { CANVAS_PRESETS, STYLE_PRESETS } from "./presets";
+import { CANVAS_PRESETS, DEFAULT_GRAIN_OPACITY, STYLE_PRESETS } from "./presets";
 
 export const EXPORT_SCALE = 2;
 
@@ -53,7 +53,7 @@ export const panelConfig = {
   },
   grain: {
     enabled: true,
-    opacity: [30, 0, 80, 1],
+    opacity: [DEFAULT_GRAIN_OPACITY, 0, 80, 1],
   },
   shuffle: { type: "action", label: "Shuffle" },
   copyCss: { type: "action", label: "Copy CSS" },
