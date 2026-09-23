@@ -1,7 +1,17 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { hexToHsl } from "./color";
-import { deriveFamily, generatePalette, paletteFromColors, paletteToStops, relatedHues, washLightness } from "./palette";
+import {
+  deriveFamily,
+  generatePalette,
+  hueDistance,
+  nextShuffleHue,
+  paletteFromColors,
+  paletteToStops,
+  relatedHues,
+  shufflePalette,
+  washLightness,
+} from "./palette";
 import { STYLE_PRESETS } from "./presets";
 
 describe("palette", () => {
@@ -82,5 +92,29 @@ describe("palette", () => {
     assert.equal(STYLE_PRESETS[0]?.palette.deep.color, "#1c2d9c");
     assert.equal(STYLE_PRESETS[0]?.palette.glow.color, "#2ad4c0");
     assert.ok(!STYLE_PRESETS.some((preset) => preset.id === "sumi"));
+    assert.ok(STYLE_PRESETS.every((preset) => preset.grain.opacity === 30));
+  });
+
+  it("shuffles to a distinctly different hue family", () => {
+    const start = paletteFromColors({
+      deep: "#1c2d9c",
+      glow: "#2ad4c0",
+      wash: "#f5f8fa",
+    });
+    const startHue = hexToHsl(start.glow.color)?.h;
+    assert.ok(startHue != null);
+
+    for (let i = 0; i < 12; i += 1) {
+      const next = shufflePalette(start);
+      const nextHue = hexToHsl(next.glow.color)?.h;
+      assert.ok(nextHue != null);
+      assert.ok(hueDistance(startHue, nextHue) >= 60);
+    }
+  });
+
+  it("jumps shuffle hues by at least a quarter turn", () => {
+    for (let i = 0; i < 20; i += 1) {
+      assert.ok(hueDistance(180, nextShuffleHue(180)) >= 64);
+    }
   });
 });

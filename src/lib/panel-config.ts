@@ -53,7 +53,7 @@ export const panelConfig = {
   },
   grain: {
     enabled: true,
-    opacity: [12, 0, 80, 1],
+    opacity: [30, 0, 80, 1],
   },
   shuffle: { type: "action", label: "Shuffle" },
   copyCss: { type: "action", label: "Copy CSS" },

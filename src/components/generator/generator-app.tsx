@@ -5,10 +5,9 @@ import { ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-react";
 import { ControlPanel } from "@/components/generator/control-panel";
 import { PreviewStage } from "@/components/generator/preview-stage";
 import { copyText } from "@/lib/clipboard";
-import { hexToHsl } from "@/lib/color";
 import { exportCssSnippet } from "@/lib/css-export";
 import { createInitialState } from "@/lib/default-state";
-import { generatePalette } from "@/lib/palette";
+import { shufflePalette } from "@/lib/palette";
 import { exportPngBlob } from "@/lib/renderer";
 import type { GeneratorState, StylePreset } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -23,18 +22,15 @@ export function GeneratorApp() {
   }, []);
 
   const shuffle = useCallback(() => {
-    setState((current) => {
-      const currentHue = hexToHsl(current.palette.glow.color)?.h;
-      return {
-        ...current,
-        presetId: "custom",
-        palette: generatePalette(currentHue, current.palette),
-        grain: {
-          ...current.grain,
-          seed: Math.floor(Math.random() * 1_000_000),
-        },
-      };
-    });
+    setState((current) => ({
+      ...current,
+      presetId: "custom",
+      palette: shufflePalette(current.palette),
+      grain: {
+        ...current.grain,
+        seed: Math.floor(Math.random() * 1_000_000),
+      },
+    }));
   }, []);
 
   const applyPreset = useCallback((preset: StylePreset) => {

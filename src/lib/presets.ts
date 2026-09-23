@@ -26,7 +26,7 @@ export const STYLE_PRESETS: StylePreset[] = [
     name: "Sea",
     gradientType: "arc",
     angle: 180,
-    grain: { enabled: true, opacity: 12 },
+    grain: { enabled: true, opacity: 30 },
     palette: presetPalette(
       { deep: "#1c2d9c", glow: "#2ad4c0", wash: "#f5f8fa" },
       { deep: { x: 16, y: 14 }, glow: { x: 36, y: 44 }, wash: { x: 78, y: 76 } }
@@ -37,7 +37,7 @@ export const STYLE_PRESETS: StylePreset[] = [
     name: "Sunrise",
     gradientType: "arc",
     angle: 180,
-    grain: { enabled: true, opacity: 10 },
+    grain: { enabled: true, opacity: 30 },
     palette: presetPalette(
       { deep: "#a85a30", glow: "#ffc078", wash: "#fff8f1" },
       { deep: { x: 16, y: 72 }, glow: { x: 40, y: 38 }, wash: { x: 80, y: 20 } }
@@ -48,7 +48,7 @@ export const STYLE_PRESETS: StylePreset[] = [
     name: "Dawn",
     gradientType: "arc",
     angle: 172,
-    grain: { enabled: true, opacity: 10 },
+    grain: { enabled: true, opacity: 30 },
     palette: presetPalette(
       { deep: "#70405e", glow: "#ff9eb0", wash: "#fff6f4" },
       { deep: { x: 15, y: 24 }, glow: { x: 38, y: 52 }, wash: { x: 80, y: 78 } }
@@ -59,7 +59,7 @@ export const STYLE_PRESETS: StylePreset[] = [
     name: "Dusk",
     gradientType: "arc",
     angle: 186,
-    grain: { enabled: true, opacity: 14 },
+    grain: { enabled: true, opacity: 30 },
     palette: presetPalette(
       { deep: "#3d3a6b", glow: "#e89aa4", wash: "#f7f3f0" },
       { deep: { x: 18, y: 14 }, glow: { x: 42, y: 40 }, wash: { x: 78, y: 80 } }
@@ -70,7 +70,7 @@ export const STYLE_PRESETS: StylePreset[] = [
     name: "Ember",
     gradientType: "arc",
     angle: 168,
-    grain: { enabled: true, opacity: 14 },
+    grain: { enabled: true, opacity: 30 },
     palette: presetPalette(
       { deep: "#7a220e", glow: "#ff6414", wash: "#fff3e8" },
       { deep: { x: 14, y: 18 }, glow: { x: 34, y: 48 }, wash: { x: 82, y: 78 } }
@@ -81,7 +81,7 @@ export const STYLE_PRESETS: StylePreset[] = [
     name: "Mist",
     gradientType: "arc",
     angle: 180,
-    grain: { enabled: true, opacity: 16 },
+    grain: { enabled: true, opacity: 30 },
     palette: presetPalette(
       { deep: "#3a5060", glow: "#7ad4e0", wash: "#f7fafb" },
       { deep: { x: 20, y: 16 }, glow: { x: 40, y: 42 }, wash: { x: 76, y: 78 } }
@@ -92,7 +92,7 @@ export const STYLE_PRESETS: StylePreset[] = [
     name: "Sage",
     gradientType: "arc",
     angle: 180,
-    grain: { enabled: true, opacity: 12 },
+    grain: { enabled: true, opacity: 30 },
     palette: presetPalette(
       { deep: "#2f4a38", glow: "#8fd4a0", wash: "#f5f7f2" },
       { deep: { x: 22, y: 80 }, glow: { x: 42, y: 40 }, wash: { x: 78, y: 18 } }
@@ -103,7 +103,7 @@ export const STYLE_PRESETS: StylePreset[] = [
     name: "Linen",
     gradientType: "arc",
     angle: 160,
-    grain: { enabled: true, opacity: 8 },
+    grain: { enabled: true, opacity: 30 },
     palette: presetPalette(
       { deep: "#8a6240", glow: "#efc888", wash: "#fbf8f2" },
       { deep: { x: 18, y: 64 }, glow: { x: 38, y: 34 }, wash: { x: 80, y: 22 } }

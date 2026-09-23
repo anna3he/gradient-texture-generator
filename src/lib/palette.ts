@@ -101,6 +101,19 @@ export function paletteToStops(
   ];
 }
 
+export function hueDistance(a: number, b: number) {
+  const delta = Math.abs(wrapHue(a - b));
+  return Math.min(delta, 360 - delta);
+}
+
+export function nextShuffleHue(currentHue?: number) {
+  if (currentHue == null) return randomBetween(0, 360);
+
+  const direction = Math.random() < 0.5 ? -1 : 1;
+  const jump = randomBetween(64, 168);
+  return wrapHue(currentHue + direction * jump);
+}
+
 export function generatePalette(baseHue?: number, keep?: Palette): Palette {
   const hue = baseHue ?? randomBetween(0, 360);
   const glow = hslToHex({
@@ -131,6 +144,11 @@ export function generatePalette(baseHue?: number, keep?: Palette): Palette {
       };
 
   return paletteFromGlow(glow, points);
+}
+
+export function shufflePalette(keep: Palette): Palette {
+  const currentHue = hexToHsl(keep.glow.color)?.h;
+  return generatePalette(nextShuffleHue(currentHue), keep);
 }
 
 export function sortStops(stops: ColorStop[]) {
